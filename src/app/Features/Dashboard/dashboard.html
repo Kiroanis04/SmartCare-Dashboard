@@ -1,0 +1,10 @@
+<div class="dashboard-container">
+  <!-- Admin Profile Component -->
+  <app-adminprofile [profile]="adminProfile"></app-adminprofile>
+
+  <!-- Cards Component -->
+  <app-cards [cardData]="cardData" (cardClick)="onCardClick($event)"></app-cards>
+
+  <!-- Bar Chart Component - Remove the binding -->
+  <app-bar-chart></app-bar-chart>
+</div>
