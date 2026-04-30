@@ -1,0 +1,29 @@
+<div class="cards-grid">
+  <div *ngFor="let card of cards" class="dashboard-card" (click)="onCardClick(card.id)">
+    <div class="card-header">
+      <div class="card-icon" [style.background]="card.iconGradient">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path [attr.d]="card.icon"/>
+        </svg>
+      </div>
+      <div class="card-trend-badge" [class.trend-up]="card.trend >= 0" [class.trend-down]="card.trend < 0">
+        {{ card.trend >= 0 ? '↑' : '↓' }} {{ card.trend > 0 ? card.trend : card.trend * -1 }}%
+      </div>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ card.title }}</h3>
+      <p class="card-value">
+        <!-- Number format -->
+        <span *ngIf="card.format === 'number'">{{ card.value | number }}</span>
+
+        <!-- Percentage format -->
+        <span *ngIf="card.format === 'percentage'">{{ card.value | number:'1.0-0' }}%</span>
+
+        <!-- Currency format with EGP as small text -->
+        <span *ngIf="card.format === 'currency'" class="currency-value">
+          {{ card.value | number }} <span class="currency-symbol">EGP</span>
+        </span>
+      </p>
+    </div>
+  </div>
+</div>
