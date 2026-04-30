@@ -1,0 +1,126 @@
+<div class="bar-chart-container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading branch data...</div>
+  </div>
+
+  <!-- Chart Header -->
+  <div class="chart-header">
+    <div class="header-title">
+      <h3>{{ title }}</h3>
+      <p>Compare performance across branches</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Filter Button -->
+      <button class="filter-btn" (click)="showFilterPanel = !showFilterPanel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 13 10 21 14 18 14 13 22 3"/>
+        </svg>
+        Filter by Date
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel" [class.expanded]="showFilterPanel">
+    <div class="filter-content">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Start Date</label>
+          <input
+            type="date"
+            [value]="tempDateRange.startDate | date:'yyyy-MM-dd'"
+            (change)="onStartDateChange($event)"
+            class="date-input">
+        </div>
+
+        <div class="filter-group">
+          <label>End Date</label>
+          <input
+            type="date"
+            [value]="tempDateRange.endDate | date:'yyyy-MM-dd'"
+            (change)="onEndDateChange($event)"
+            class="date-input">
+        </div>
+
+        <div class="filter-actions">
+          <button class="apply-btn" (click)="applyDateFilter()">Apply Filter</button>
+          <button class="reset-btn" (click)="resetDateFilter()">Reset</button>
+        </div>
+      </div>
+
+      <div class="filter-info">
+        <span class="info-badge">
+          📅 Showing data from {{ dateRange.startDate | date:'MMM d, yyyy' }} to {{ dateRange.endDate | date:'MMM d, yyyy' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-icon">💰</div>
+      <div class="summary-info">
+        <span class="summary-label">Total Revenue</span>
+        <span class="summary-value">{{ summary.totalRevenue / 1000000 | number:'1.1-1' }}M EGP</span>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon">💵</div>
+      <div class="summary-info">
+        <span class="summary-label">Total Sales</span>
+        <span class="summary-value">{{ summary.totalSales / 1000000 | number:'1.1-1' }}M EGP</span>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon">📦</div>
+      <div class="summary-info">
+        <span class="summary-label">Total Orders</span>
+        <span class="summary-value">{{ summary.totalOrders | number }}</span>
+      </div>
+    </div>
+    <div class="summary-card" *ngIf="summary.topBranch">
+      <div class="summary-icon">🏆</div>
+      <div class="summary-info">
+        <span class="summary-label">Top Branch</span>
+        <span class="summary-value">{{ summary.topBranch.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Wrapper with Horizontal Scroll -->
+  <div class="chart-wrapper" [class.horizontal-scroll]="isMobile">
+    <canvas #chartCanvas class="chart-canvas"></canvas>
+  </div>
+
+  <!-- Scroll Hint for Mobile -->
+  <div class="scroll-hint" *ngIf="isMobile && branchData.length > 0">
+    <span class="hint-text">👆 Swipe left/right to see more branches</span>
+  </div>
+
+  <!-- Legend -->
+  <div class="chart-footer">
+    <div class="legend">
+      <div class="legend-header">
+        <span>Branch Performance Metrics</span>
+      </div>
+      <div class="legend-items">
+        <div class="legend-metric">
+          <div class="legend-color revenue-color"></div>
+          <span class="legend-label">Total Revenue (EGP)</span>
+        </div>
+        <div class="legend-metric">
+          <div class="legend-color sales-color"></div>
+          <span class="legend-label">Total Sales (EGP)</span>
+        </div>
+        <div class="legend-metric">
+          <div class="legend-color orders-color"></div>
+          <span class="legend-label">Total Orders</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
