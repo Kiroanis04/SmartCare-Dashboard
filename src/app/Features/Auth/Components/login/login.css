@@ -278,3 +278,13 @@ body, html {
     transform: translateY(0);
   }
 }
+
+.snack-success .mdc-snackbar__surface {
+  background-color: #2e7d32 !important;
+  color: #ffffff !important;
+}
+
+.snack-error .mdc-snackbar__surface {
+  background-color: #c62828 !important;
+  color: #ffffff !important;
+}

@@ -16,18 +16,18 @@
 
       <h2 class="login-title">Log in to Smartcare</h2>
 
-      <form class="login-form">
+      <form [formGroup]="loginForm" class="login-form">
         <div class="input-group">
-          <input type="email" placeholder="yourname@example.com" required>
+          <input formControlName="email" type="email" placeholder="yourname@example.com" required>
         </div>
 
         <div class="input-group">
-          <input type="password" placeholder="********" required>
+          <input formControlName="password" type="password" placeholder="********" required>
         </div>
 
         <a href="#" class="forgot-password">Forgot Password?</a>
 
-        <button type="submit" class="login-btn">Log In</button>
+        <button type="submit" class="login-btn" (click)="OnLogin()">Log In</button>
       </form>
 
       <div class="footer-links">
