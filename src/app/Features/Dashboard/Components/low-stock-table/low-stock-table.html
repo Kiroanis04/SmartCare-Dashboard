@@ -1,1 +1,128 @@
-<p>low-stock-table works!</p>
+<div class="low-stock-container">
+  <!-- Header -->
+  <div class="table-header">
+    <div class="header-title">
+      <h3>Low Stock Alert</h3>
+      <p>Monitor products with low inventory levels</p>
+    </div>
+
+    <button class="filter-btn" (click)="toggleFilterPanel()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 13 10 21 14 18 14 13 22 3"/>
+      </svg>
+      Filter
+    </button>
+  </div>
+
+  <!-- Expandable Filter Panel -->
+  <div class="filter-panel" [class.expanded]="showFilterPanel">
+    <div class="filter-content">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Threshold (Max Stock)</label>
+          <input
+            type="number"
+            [(ngModel)]="thresholdValue"
+            (change)="onThresholdChange()"
+            class="threshold-input"
+            min="0"
+            max="100">
+        </div>
+
+        <div class="filter-group">
+          <label>Branch Name (Optional)</label>
+          <select [(ngModel)]="selectedStoreId" (change)="onBranchChange()" class="branch-select">
+  <option value="all">All Branches</option>
+  <option *ngFor="let s of storeOptions" [value]="s.storeId">
+    {{ s.storeName }}
+  </option>
+</select>
+        </div>
+
+        <div class="filter-actions">
+          <button class="reset-btn" (click)="resetFilters()">Reset</button>
+          <button class="apply-btn" (click)="applyFilters()">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-info">
+        <span class="summary-label">Total Items</span>
+        <span class="summary-value">{{ filteredItems.length }}</span>
+      </div>
+    </div>
+    <div class="summary-card critical">
+      <div class="summary-info">
+        <span class="summary-label">Critical (≤3)</span>
+        <span class="summary-value">{{ criticalCount }}</span>
+      </div>
+    </div>
+    <div class="summary-card warning">
+      <div class="summary-info">
+        <span class="summary-label">Warning (4-5)</span>
+        <span class="summary-value">{{ warningCount }}</span>
+      </div>
+    </div>
+    <div class="summary-card low">
+      <div class="summary-info">
+        <span class="summary-label">Low (6-10)</span>
+        <span class="summary-value">{{ lowCount }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product Name</th>
+          <th>Branch Name</th>
+          <th>Current Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredItems; let i = index" class="stock-row">
+          <td class="index">{{ i + 1 }}</td>
+          <td class="product-name">{{ item.productName }}</td>
+          <td class="branch-name">{{ item.branchName }}</td>
+          <td class="stock-cell">
+            <div class="stock-indicator">
+              <div class="stock-circle"
+                   [class.circle-red]="item.currentStock <= 3"
+                   [class.circle-yellow]="item.currentStock > 3 && item.currentStock <= 5"
+                   [class.circle-green]="item.currentStock > 5 && item.currentStock <= 10">
+                <span class="stock-number">{{ item.currentStock }}</span>
+              </div>
+              <span class="status-badge"
+                    [class.status-critical]="item.currentStock <= 3"
+                    [class.status-warning]="item.currentStock > 3 && item.currentStock <= 5"
+                    [class.status-low]="item.currentStock > 5 && item.currentStock <= 10">
+                {{ getStatusText(item.currentStock) }}
+              </span>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredItems.length === 0">
+          <td colspan="4" class="no-data">
+            <div class="no-data-message">
+              <p>No low stock items found</p>
+              <small>Try adjusting the threshold or branch filter</small>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <mat-paginator
+  [length]="totalCount"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  showFirstLastButtons>
+</mat-paginator>
+  </div>
+</div>
