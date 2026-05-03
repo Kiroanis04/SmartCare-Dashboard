@@ -1,12 +1,38 @@
 .dashboard-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 1.5rem;
   min-height: 100vh;
+  background: #f1f5f9;
+}
+
+/* Two Column Layout for Charts */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.chart-col {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
+  }
+
+  .charts-row {
+    gap: 0.75rem;
   }
 }

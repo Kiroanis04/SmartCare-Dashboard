@@ -1,10 +1,30 @@
-<div class="dashboard-container">
-  <!-- Admin Profile Component -->
-  <app-adminprofile [profile]="adminProfile"></app-adminprofile>
+<!--<app-sidebar>-->
+  <div class="dashboard-container">
 
-  <!-- Cards Component -->
-  <app-cards [cardData]="cardData" (cardClick)="onCardClick($event)"></app-cards>
+    <!-- Admin Profile Component -->
+    <app-adminprofile></app-adminprofile>
 
-  <!-- Bar Chart Component - Remove the binding -->
-  <app-bar-chart></app-bar-chart>
-</div>
+    <!-- Cards Component -->
+    <app-cards [cardData]="cardData" (cardClick)="onCardClick($event)"></app-cards>
+
+    <!-- Company Performance Chart -->
+    <app-company-performance-chart></app-company-performance-chart>
+
+    <!-- Two Column Layout for Charts -->
+    <div class="charts-row">
+      <!-- Bar Chart Component -->
+      <div class="chart-col">
+        <app-bar-chart></app-bar-chart>
+      </div>
+
+      <!-- Donut Chart Component -->
+      <div class="chart-col">
+        <app-donut-chart></app-donut-chart>
+      </div>
+    </div>
+
+    <!-- Low Stock Table Component -->
+    <app-low-stock-table></app-low-stock-table>
+
+  </div>
+<!--</app-sidebar>-->
