@@ -5,7 +5,7 @@ import { AdminProfile } from '../../Models/dashboard.model';
 @Component({
   selector: 'app-adminprofile',
   standalone: true,
-  imports: [CommonModule],  
+  imports: [CommonModule],
   templateUrl: './adminprofile.html',
   styleUrls: ['./adminprofile.css']
 })
