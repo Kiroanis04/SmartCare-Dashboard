@@ -1,1 +1,60 @@
-<p>category-distribution-chart works!</p>
+<div class="donut-chart-container">
+  <div class="donut-header">
+    <div class="header-title">
+      <h3>{{ title }}</h3>
+      <p>Sales distribution by category</p>
+    </div>
+  </div>
+
+  <!-- Skeleton -->
+  @if (isLoading) {
+    <div class="skeleton-wrapper">
+      <div class="skeleton skeleton-circle"></div>
+      <div class="skeleton-legend">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton skeleton-legend-item"></div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading) {
+    <div class="donut-content">
+
+      <!-- Chart -->
+      <div class="chart-area">
+        <canvas baseChart
+                [data]="pieChartData"
+                [options]="pieChartOptions"
+                [type]="pieChartType"
+                class="pie-canvas">
+        </canvas>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend-area">
+        <div class="legend-header">
+          <span>Categories</span>
+          <span class="total-badge">Total: {{ formatValue(totalValue) }} EGP</span>
+        </div>
+        <div class="legend-list">
+          @for (category of categories; track category.name) {
+            <div class="legend-item"
+                 [class.active]="selectedCategory?.name === category.name"
+                 (click)="selectCategory(category)">
+              <div class="legend-color" [style.background]="category.color"></div>
+              <div class="legend-info">
+                <span class="legend-name">{{ category.name }}</span>
+                <span class="legend-percentage">{{ category.percentage.toFixed(1) }}%</span>
+              </div>
+              <span class="legend-value">{{ formatValue(category.value) }} EGP</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>
