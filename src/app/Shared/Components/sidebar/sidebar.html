@@ -1,0 +1,59 @@
+<mat-sidenav-container class="shell-sidenav-container">
+
+  <mat-sidenav #snav mode="over" [fixedInViewport]="true">
+
+    <!-- Close button for sidebar -->
+    <button class="sidebar-close-btn" (click)="snav.close()" aria-label="Close sidebar">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <img src="Icons/SmartCare-logo.webp" alt="SmartCare Logo" />
+    </div>
+
+    <mat-nav-list>
+      @for (item of navItems; track item.label) {
+        @if (item.children) {
+          <mat-expansion-panel class="nav-expansion-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>{{ item.icon }}</mat-icon>
+                <span>{{ item.label }}</span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            @for (child of item.children; track child.label) {
+              <a mat-list-item
+                 [routerLink]="child.route"
+                 routerLinkActive="active-link"
+                 class="child-nav-item"
+                 (click)="snav.close()">
+                <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
+                <span matListItemTitle>{{ child.label }}</span>
+              </a>
+            }
+          </mat-expansion-panel>
+        } @else {
+          <a mat-list-item
+             [routerLink]="item.route"
+             routerLinkActive="active-link"
+             (click)="snav.close()">
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <!-- Toggle button -->
+    <button mat-icon-button class="menu-btn" (click)="snav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

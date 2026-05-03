@@ -1,0 +1,336 @@
+.shell-sidenav-container {
+  height: 100%;
+}
+
+mat-sidenav {
+  width: 230px;
+  padding-top: 0;
+  z-index: 1001 !important;
+  background: linear-gradient(160deg, #1a1a4e 0%, #2d2b6b 40%, #3b3488 70%, #6c63ac 100%);
+  border-right: none !important;
+  box-shadow: 4px 0 20px rgba(108, 99, 172, 0.3);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+}
+
+.sidebar-logo img {
+  width: 250px;
+  height: auto;
+  object-fit: contain;
+}
+
+mat-nav-list {
+  padding: 8px 12px !important;
+  overflow: visible !important;
+}
+
+mat-nav-list a {
+  border-radius: 10px !important;
+  margin-bottom: 4px !important;
+  color: #ffffff !important;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease !important;
+}
+
+mat-nav-list a:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  transform: translateX(4px);
+}
+
+mat-nav-list a mat-icon {
+  color: #ffffff !important;
+  transition: color 0.2s ease !important;
+}
+
+mat-nav-list a:hover mat-icon {
+  color: #c9c3ff !important;
+}
+
+mat-nav-list a span {
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.active-link {
+  background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08)) !important;
+  color: #ffffff !important;
+  border-left: 3px solid #c9c3ff !important;
+  border-radius: 10px !important;
+}
+
+.active-link mat-icon {
+  color: #c9c3ff !important;
+}
+
+.active-link span {
+  color: #ffffff !important;
+}
+
+.menu-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 999;
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  color: white;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(108, 99, 172, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.menu-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(108, 99, 172, 0.65);
+}
+
+.menu-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(108, 99, 172, 0.4);
+}
+
+/* ── Expansion panel ── */
+.nav-expansion-panel {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  margin: 0 0 4px 0 !important;
+  overflow: visible !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-header {
+  border-radius: 10px !important;
+  padding: 0 16px !important;
+  height: 48px !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  transition: background 0.2s ease, transform 0.15s ease !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-header:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(4px);
+}
+
+.nav-expansion-panel .mat-expansion-panel-header,
+.nav-expansion-panel .mat-expansion-panel-header span,
+.nav-expansion-panel .mat-expansion-panel-header .mat-panel-title,
+.nav-expansion-panel .mat-expansion-panel-header .mat-panel-title span {
+  color: #ffffff !important;
+}
+
+.nav-expansion-panel.mat-expanded .mat-expansion-panel-header {
+  background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08)) !important;
+  border-left: 3px solid #c9c3ff !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-header mat-icon {
+  color: #ffffff !important;
+  margin-right: 16px;
+  transition: color 0.2s ease !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-header:hover mat-icon {
+  color: #c9c3ff !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-header .mat-panel-title {
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-expansion-panel .mat-expansion-indicator::after {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-content {
+  overflow: visible !important;
+}
+
+.nav-expansion-panel .mat-expansion-panel-body {
+  padding: 4px 0 8px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-radius: 0 0 10px 10px !important;
+  overflow: visible !important;
+}
+
+/* ── Child nav list inside expansion ── */
+.nav-expansion-panel mat-nav-list {
+  padding: 4px 8px !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+
+.child-nav-item {
+  border-radius: 10px !important;
+  margin-bottom: 4px !important;
+  padding-left: 10px !important;
+  color: #ffffff !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  overflow: visible !important;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease !important;
+}
+
+.child-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(4px);
+}
+
+.child-nav-item mat-icon {
+  color: #ffffff !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+  transition: color 0.2s ease !important;
+  flex-shrink: 0;
+}
+
+.child-nav-item:hover mat-icon {
+  color: #c9c3ff !important;
+}
+
+.child-nav-item span {
+  color: #ffffff !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  display: block !important;
+}
+
+.child-nav-item.active-link {
+  background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08)) !important;
+  border-left: 3px solid #c9c3ff !important;
+}
+
+.child-nav-item.active-link mat-icon {
+  color: #c9c3ff !important;
+}
+
+.child-nav-item.active-link span {
+  color: #ffffff !important;
+}
+
+
+.mat-drawer-backdrop.mat-drawer-shown {
+  z-index: 1000 !important;
+}
+
+/* Close button styles */
+.sidebar-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1002;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-close-btn:active {
+  transform: scale(0.95);
+}
+
+.sidebar-close-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+/* Adjust sidebar logo position to accommodate close button */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+  position: relative;
+  padding-right: 40px; /* Add space for close button */
+}
+
+/* Optional: Add a subtle overlay when sidebar is open on mobile */
+.mat-drawer-backdrop.mat-drawer-shown {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+/* Animation for sidebar close button */
+mat-sidenav {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 600px) {
+  .sidebar-close-btn {
+    width: 36px;
+    height: 36px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .sidebar-close-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px 16px;
+    padding-right: 48px;
+  }
+
+  .sidebar-logo img {
+    width: 180px;
+  }
+}
+
+/* Desktop styles - hide close button when sidebar is in permanent mode? */
+@media (min-width: 601px) {
+  /* Only show close button when sidebar is in overlay mode */
+  .sidebar-close-btn {
+    display: flex;
+  }
+}
