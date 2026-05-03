@@ -1,0 +1,152 @@
+<div class="pharmacist-wrapper">
+
+  <!-- Filter Panel -->
+  <mat-accordion class="filter-accordion">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>filter_list</mat-icon>
+          <span>Filter Pharmacists</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          Search by name, branch or status
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filter-grid">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Search Pharmacist Name</mat-label>
+          <input matInput [(ngModel)]="searchPharmacistName" placeholder="e.g. Dr. Ahmed" (input)="applyFilters()" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Branch Name</mat-label>
+          <mat-select [(ngModel)]="selectedBranchName" (selectionChange)="applyFilters()">
+            <mat-option value="">All Branches</mat-option>
+            @for (name of BranchName; track name) {
+              <mat-option [value]="name">{{ name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+            <mat-option value="">All Statuses</mat-option>
+            @for (status of StatusOptions; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-actions">
+        <button mat-flat-button class="btn-apply" (click)="applyFilters()">
+          <mat-icon>check_circle</mat-icon> Apply Filters
+        </button>
+        <button mat-stroked-button class="btn-reset" (click)="resetFilters()">
+          <mat-icon>restart_alt</mat-icon> Reset
+        </button>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- Table -->
+  <div class="mat-elevation-z8 table-card">
+    <div class="table-header">
+      <div class="header-left">
+        <mat-icon>pharmacy</mat-icon>
+        <span class="table-title">👨‍⚕️ Pharmacists List</span>
+      </div>
+      <span class="table-count">{{ dataSource.data.length }} items</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef> No. </th>
+          <td mat-cell *matCellDef="let element"> {{ element.position }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="pharmacistName">
+          <th mat-header-cell *matHeaderCellDef> Pharmacist Name </th>
+          <td mat-cell *matCellDef="let element" class="pharmacist-name-cell">
+            <mat-icon>person</mat-icon>
+            {{ element.pharmacistName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="branchName">
+          <th mat-header-cell *matHeaderCellDef> Branch Name </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="branch-badge">
+              <mat-icon>store</mat-icon>
+              {{ element.branchName }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="licenseNumber">
+          <th mat-header-cell *matHeaderCellDef> License Number </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="license-badge">
+              <mat-icon>badge</mat-icon>
+              {{ element.licenseNumber }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef> Email </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="email-text">
+              <mat-icon>email</mat-icon>
+              {{ element.email }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef> Phone </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="phone-text">
+              <mat-icon>phone</mat-icon>
+              {{ element.phone }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="status-chip" [class]="getStatusClass(element.status)">
+              {{ element.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef> Action </th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-raised-button class="change-branch-btn" (click)="changeBranch(element)">
+              <mat-icon>swap_horiz</mat-icon>
+              Change Branch
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="pharmacist-row"></tr>
+
+      </table>
+    </div>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]"
+                   [pageSize]="10"
+                   showFirstLastButtons
+                   aria-label="Select page of pharmacists">
+    </mat-paginator>
+  </div>
+</div>
