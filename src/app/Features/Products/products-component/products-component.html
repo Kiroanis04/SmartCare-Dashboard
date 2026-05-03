@@ -1,0 +1,202 @@
+<div class="products-wrapper">
+
+  <!-- Filter Panel -->
+  <mat-accordion class="filter-accordion">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>filter_list</mat-icon>
+          <span>Filter Products</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          Search by name, company, category or price
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filter-grid">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Search Product</mat-label>
+          <input matInput [(ngModel)]="searchText" placeholder="e.g. Paracetamol" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Company</mat-label>
+          <mat-select [(ngModel)]="selectedCompany">
+            <mat-option value="">All Companies</mat-option>
+            @for (company of companies; track company) {
+              <mat-option [value]="company">{{ company }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Category</mat-label>
+          <mat-select [(ngModel)]="selectedCategory">
+            <mat-option value="">All Categories</mat-option>
+            @for (cat of categories; track cat) {
+              <mat-option [value]="cat">{{ cat }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Min Price (EGP)</mat-label>
+          <input matInput type="number" [(ngModel)]="minPrice" placeholder="0" />
+          <mat-icon matSuffix>attach_money</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Max Price (EGP)</mat-label>
+          <input matInput type="number" [(ngModel)]="maxPrice" placeholder="1000" />
+          <mat-icon matSuffix>attach_money</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-actions">
+        <button mat-flat-button class="btn-apply" (click)="applyFilters()">
+          <mat-icon>check_circle</mat-icon> Apply Filters
+        </button>
+        <button mat-stroked-button class="btn-reset" (click)="resetFilters()">
+          <mat-icon>restart_alt</mat-icon> Reset
+        </button>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- Table -->
+  <div class="mat-elevation-z8 table-card">
+
+    <div class="table-header">
+      <span class="table-title">🏥 Products List</span>
+      <span class="table-count">{{ dataSource.data.length }} items</span>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef> No. </th>
+        <td mat-cell *matCellDef="let element"> {{ element.position }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="productName">
+        <th mat-header-cell *matHeaderCellDef> Product Name </th>
+        <td mat-cell *matCellDef="let element">
+          <div class="product-name-cell">
+            {{ element.productName }}
+            <mat-icon class="expand-icon" [class.rotated]="expandedProduct === element">
+              expand_more
+            </mat-icon>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Price </th>
+        <td mat-cell *matCellDef="let element"> EGP {{ element.price.toFixed(2) }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="categoryName">
+        <th mat-header-cell *matHeaderCellDef> Category </th>
+        <td mat-cell *matCellDef="let element"> {{ element.categoryName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="companyName">
+        <th mat-header-cell *matHeaderCellDef> Company </th>
+        <td mat-cell *matCellDef="let element"> {{ element.companyName }} </td>
+      </ng-container>
+
+      <!-- Detail row column -->
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+          <div class="branch-panel-inner">
+
+            <!-- <div class="branch-panel-header">
+              <mat-icon>store</mat-icon>
+              <span>Branches — {{ element.productName }}</span>
+              <span class="total-badge">
+                Total: {{ getTotalStock(element) }} units
+              </span>
+            </div> -->
+
+            <mat-accordion>
+              @for (branch of element.branches; track branch.branchName) {
+                <mat-expansion-panel class="branch-expansion">
+
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="branch-title">
+                      <mat-icon>location_on</mat-icon>
+                      {{ branch.branchName }}
+                    </mat-panel-title>
+                    <!-- <mat-panel-description class="branch-desc">
+                      {{ branch.location }}
+                    </mat-panel-description> -->
+                  </mat-expansion-panel-header>
+
+                  <div class="branch-detail">
+
+                    <div class="branch-stat">
+                      <span class="stat-label">Available Stock</span>
+                      <span class="stat-value">{{ branch.availableStock }} units</span>
+                    </div>
+
+                    <div class="branch-stat">
+                      <span class="stat-label">Stock Level</span>
+                      <span class="stock-chip" [ngClass]="getStockLevel(branch.availableStock)">
+                        {{ getStockLevel(branch.availableStock) === 'high'   ? '✅ High'   :
+                           getStockLevel(branch.availableStock) === 'medium' ? '⚠️ Medium'
+                                                                             : '🔴 Low' }}
+                      </span>
+                    </div>
+
+                    <div class="stock-bar-wrap">
+                      <div class="stock-bar">
+                        <div class="stock-bar-fill"
+                             [ngClass]="getStockLevel(branch.availableStock)"
+                             [style.width.%]="(branch.availableStock / 1000) * 100">
+                        </div>
+                      </div>
+                      <!-- <span class="stock-bar-label">
+                        {{ branch.availableStock }} / 1000
+                      </span> -->
+                    </div>
+
+                  </div>
+
+                </mat-expansion-panel>
+              }
+            </mat-accordion>
+
+            <div class="total-row">
+              <mat-icon>inventory</mat-icon>
+              <span>Total stock across all branches</span>
+              <strong>{{ getTotalStock(element) }} units</strong>
+            </div>
+
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+      <tr mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="product-row"
+          [class.expanded-row]="expandedProduct === row"
+          (click)="toggleProduct(row)">
+      </tr>
+
+      <!-- Only rendered when this row IS the expanded product -->
+      <tr mat-row
+          *matRowDef="let row; columns: ['expandedDetail']; when: isDetailRow"
+          class="detail-row">
+      </tr>
+
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                   showFirstLastButtons
+                   aria-label="Select page of products">
+    </mat-paginator>
+  </div>
+</div>
