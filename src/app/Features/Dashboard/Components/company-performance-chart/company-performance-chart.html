@@ -1,1 +1,44 @@
-<p>company-performance-chart works!</p>
+<div class="company-performance-container">
+  <div class="performance-header">
+    <div class="header-title">
+      <h3>Company Performance</h3>
+      <p>Branch Total Sales Comparison</p>
+    </div>
+  </div>
+
+  <!-- Horizontal Bar Chart -->
+  <div class="chart-wrapper">
+    <canvas
+      baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      [type]="barChartType"
+      class="performance-canvas">
+    </canvas>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="performance-stats">
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-info">
+        <span class="stat-label">Top Branch</span>
+        <span class="stat-value">{{ topCompany }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div class="stat-info">
+        <span class="stat-label">Average Sales</span>
+        <span class="stat-value">{{ averageRevenue }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Sales</span>
+        <span class="stat-value">{{ totalRevenue }}</span>
+      </div>
+    </div>
+  </div>
+</div>
