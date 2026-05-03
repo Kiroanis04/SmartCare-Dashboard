@@ -1,0 +1,344 @@
+/* Container */
+.orders-wrapper {
+  padding: 20px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Filter Accordion */
+.filter-accordion {
+  margin-bottom: 24px;
+}
+
+.filter-accordion .mat-expansion-panel {
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(108, 99, 172, 0.1);
+}
+
+.btn-apply,
+.btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-apply {
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  color: white;
+}
+
+/* Table Card */
+.table-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(108, 99, 172, 0.15) !important;
+  background: #ffffff;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8f9ff, #ffffff);
+  border-bottom: 2px solid rgba(108, 99, 172, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-left mat-icon {
+  color: #6c63ac;
+  font-size: 24px;
+}
+
+.table-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a4e;
+}
+
+.table-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* Table Wrapper for Horizontal Scroll */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+}
+
+.mat-mdc-header-row {
+  background: linear-gradient(135deg, #1a1a4e 0%, #3b3488 60%, #6c63ac 100%) !important;
+}
+
+.mat-mdc-header-cell {
+  color: #ffffff !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  padding: 16px 20px !important;
+  white-space: nowrap;
+}
+
+.mat-mdc-row {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(108, 99, 172, 0.08) !important;
+}
+
+.mat-mdc-row:hover {
+  background: linear-gradient(90deg, rgba(108, 99, 172, 0.05), rgba(108, 99, 172, 0.02));
+  transform: translateX(4px);
+}
+
+.mat-mdc-cell {
+  padding: 14px 20px !important;
+  font-size: 0.9rem !important;
+  color: #2d2b6b !important;
+}
+
+/* Client Name Cell */
+.client-name-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+  color: #3b3488 !important;
+}
+
+.view-icon {
+  font-size: 18px;
+  color: #6c63ac;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mat-mdc-row:hover .view-icon {
+  opacity: 1;
+}
+
+/* Status Chip */
+.status-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-chip.delivered {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-chip.pending {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+.status-chip.shipped {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+/* Type Badge */
+.type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f0f2ff;
+  color: #6c63ac;
+}
+
+/* Paginator */
+.mat-mdc-paginator {
+  background: linear-gradient(135deg, #f5f4ff, #eef4fd) !important;
+  border-top: 1px solid rgba(108, 99, 172, 0.12) !important;
+  padding: 8px 16px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .orders-wrapper {
+    padding: 12px;
+  }
+
+  .table-header {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .table-title {
+    font-size: 1rem;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .btn-apply,
+  .btn-reset {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mat-mdc-header-cell {
+    padding: 12px 12px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .mat-mdc-cell {
+    padding: 12px 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  table {
+    min-width: 650px;
+  }
+
+  .status-chip,
+  .type-badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-wrapper {
+    padding: 8px;
+  }
+
+  .mat-mdc-header-cell {
+    padding: 10px 8px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .mat-mdc-cell {
+    padding: 10px 8px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .client-name-cell {
+    font-size: 0.8rem;
+  }
+
+  .status-chip,
+  .type-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .mat-mdc-paginator {
+    padding: 4px;
+  }
+
+  .mat-mdc-paginator-range-label {
+    display: none;
+  }
+}
+
+/* Tablet Landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .orders-wrapper {
+    padding: 16px;
+  }
+
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  table {
+    min-width: 750px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.order-row {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2d2b6b, #5a53a0);
+}
+
+/* Dialog Panel Styles */
+.order-dialog-panel .mat-dialog-container {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
