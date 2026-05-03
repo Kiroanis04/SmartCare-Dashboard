@@ -22,6 +22,31 @@ export interface CardData {
   };
 }
 
+export interface LowStockItem {
+  productId: string;
+  productName: string;
+  storeId: string;
+  storeName: string;       // ← mapped to branchName in component
+  currentStock: number;
+  threshold: number;
+}
+
+export interface LowStockApiResponse {
+  statusCode: number;
+  succeeded: boolean;
+  message: string;
+  errorsBag: any;
+  data: {
+    items: LowStockItem[];
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+}
+
 // Admin Profile Models
 export interface AdminProfile {
   id: string;
@@ -48,35 +73,29 @@ export interface DateRange {
   endDate: Date;
 }
 
-// Additional Models for Branch Performance
-export interface BranchPerformance {
-  branchId: string;
-  branchName: string;
-  monthlyRevenue: number[];
-  monthlySales: number[];
-  monthlyOrders: number[];
-  growth: number;
-}
+// Category Data Model for Donut Chart
+// Add this to your existing dashboard.model.ts
 
-export interface TimePeriod {
-  value: string;
-  label: string;
-  months: number;
-}
-
-// Chart Data Models
-export interface ChartDataPoint {
-  label: string;
+export interface CategoryData {
+  name: string;
   value: number;
-  color?: string;
+  color: string;
+  percentage?: number;
+  growth?: number;
+  icon?: string;
 }
 
-export interface BarChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    backgroundColor: string;
-    borderColor?: string;
-  }[];
+
+export interface LowStockItem {
+  productName: string;
+  branchName: string;
+  currentStock: number;
+  threshold: number;
+  status: 'critical' | 'warning' | 'low' | 'normal';
+}
+
+export interface StockStatus {
+  color: string;
+  label: string;
+  icon: string;
 }
