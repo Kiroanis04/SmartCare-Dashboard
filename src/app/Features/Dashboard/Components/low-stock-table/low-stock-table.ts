@@ -146,11 +146,15 @@ export class LowStockTableComponent implements OnInit, AfterViewInit, OnDestroy 
     this.loadData();
   }
 
-  updateCounts(): void {
-    this.criticalCount = this.filteredItems.filter(i => i.currentStock === 0).length;
-    this.warningCount  = this.filteredItems.filter(i => i.currentStock > 0 && i.currentStock <= 3).length;
-    this.lowCount      = this.filteredItems.filter(i => i.currentStock > 3).length;
-  }
+ updateCounts(): void {
+  // Use the SAME ranges as the table badges AND summary card labels
+  this.criticalCount = this.filteredItems.filter(i => i.currentStock <= 3).length;
+  this.warningCount  = this.filteredItems.filter(i => i.currentStock >= 4 && i.currentStock <= 5).length;
+  this.lowCount      = this.filteredItems.filter(i => i.currentStock >= 6 && i.currentStock <= 10).length;
+
+  // Optional: If you also want to show "Out of Stock" separately, add another counter.
+  // const outOfStockCount = this.filteredItems.filter(i => i.currentStock === 0).length;
+}
 
   getStatusText(stock: number): string {
     if (stock === 0) return 'Out of Stock';

@@ -54,7 +54,7 @@ export class Sidebar implements OnDestroy {
         { label: 'Pharmacists', icon: 'medication', route: '/users/pharmacists' },
       ],
     },
-    { label: 'Notifications', icon: 'notifications', route: '/notifications' }
+    { label: 'Notifications',  icon: 'notifications',   route: '/notifications' },
   ];
 
   protected readonly isMobile = signal(true);
