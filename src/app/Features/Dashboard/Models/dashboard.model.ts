@@ -49,13 +49,21 @@ export interface LowStockApiResponse {
 
 // Admin Profile Models
 export interface AdminProfile {
-  id: string;
-  username: string;
-  email: string;
-  avatar: string;
-  role: string;
-  lastLogin: Date;
-  permissions: string[];
+  id:        string;
+  firstName: string;
+  lastName:  string;
+  userName:  string;
+  email:     string;
+  role?:     string;
+  avatar?:   string;
+}
+
+export interface AdminProfileApiResponse {
+  statusCode: number;
+  succeeded:  boolean;
+  message:    string;
+  errorsBag:  any;
+  data:       AdminProfile;
 }
 
 // Branch Data Models

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { CardData, AdminProfile, BranchData, DateRange, CategoryData, LowStockApiResponse } from '../Models/dashboard.model';
+import { CardData, AdminProfile, BranchData, DateRange, CategoryData, LowStockApiResponse, AdminProfileApiResponse } from '../Models/dashboard.model';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  private baseUrl = 'https://smartcarepharmacy.tryasp.net';
+ // private baseUrl = 'https://smartcarepharmacy.tryasp.net';
   // Private BehaviorSubjects
   private cardDataSubject = new BehaviorSubject<CardData>({
     totalAccounts: 15420,
@@ -24,14 +24,14 @@ export class DashboardService {
   });
 
   private adminProfileSubject = new BehaviorSubject<AdminProfile>({
-    id: 'admin-001',
-    username: 'Kyrillos Anis',
-    email: 'Kyrillos.Anis@admin.com',
-    avatar: 'https://ui-avatars.com/api/?background=3b82f6&color=fff&rounded=true&size=80&bold=true&name=Alex&length=2',
-    role: 'Administrator',
-    lastLogin: new Date(),
-    permissions: ['read', 'write', 'delete', 'manage_users']
-  });
+  id:        'admin-001',
+  firstName: 'Kyrillos',
+  lastName:  'Anis',
+  userName:  'Kyrillos Anis',
+  email:     'Kyrillos.Anis@admin.com',
+  avatar:    'https://ui-avatars.com/api/?background=3b82f6&color=fff&rounded=true&size=80&bold=true&name=Alex&length=2',
+  role:      'Administrator'
+});
 
   // Category Data
   private categoryData: CategoryData[] = [
@@ -99,6 +99,8 @@ export class DashboardService {
   constructor(private httpclient: HttpClient) {
     this.initializeBranchData();
     this.calculateCategoryPercentages();
+    this.getCardData();
+    this.getSummer().subscribe();
   }
 
   private calculateCategoryPercentages() {
@@ -222,31 +224,31 @@ export class DashboardService {
   }
 
  getUsers(): Observable<any> {
-  return this.httpclient.get<any>("https://smartcarepharmacy.tryasp.net/api/admin/analytics/clients");
+  return this.httpclient.get<any>("/api/admin/analytics/clients");
 }
 
 getSummer(): Observable<any>{
-  return this.httpclient.get<any>("https://smartcarepharmacy.tryasp.net/api/admin/analytics/summary");
+  return this.httpclient.get<any>("/api/admin/analytics/summary");
 }
 
 getCompanies(): Observable<any>{
-  return this.httpclient.get<any>("https://smartcarepharmacy.tryasp.net/api/admin/analytics/companies");
+  return this.httpclient.get<any>("/api/admin/analytics/companies");
 }
 
 getCategories(): Observable<any>{
-  return this.httpclient.get<any>("https://smartcarepharmacy.tryasp.net/api/admin/analytics/categories");
+  return this.httpclient.get<any>("/api/admin/analytics/categories");
 }
 
- getLowStock(pageNumber: number, pageSize: number, threshold?: number, storeId?: string): Observable<LowStockApiResponse> {
-  let url = `${this.baseUrl}/api/admin/dashboard/stores-Low-stock?PageNumber=${pageNumber}&PageSize=${pageSize}`;
+getLowStock(pageNumber: number, pageSize: number, threshold?: number, storeId?: string): Observable<LowStockApiResponse> {
+  let url = `/api/admin/dashboard/stores-Low-stock?PageNumber=${pageNumber}&PageSize=${pageSize}`;
   if (threshold != null && threshold > 0) url += `&Threshold=${threshold}`;
   if (storeId && storeId !== 'all') url += `&StoreId=${storeId}`;
   return this.httpclient.get<LowStockApiResponse>(url);
 }
 
-  getAdminProfile(): Observable<AdminProfile> {
-    return this.adminProfileSubject.asObservable();
-  }
+getAdminProfile(): Observable<AdminProfileApiResponse> {
+  return this.httpclient.get<AdminProfileApiResponse>('/api/dashboard/admin');
+}
 
   getCurrentCardData(): CardData {
     return this.cardDataSubject.value;

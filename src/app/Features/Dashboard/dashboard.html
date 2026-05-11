@@ -2,10 +2,24 @@
   <div class="dashboard-container">
 
     <!-- Admin Profile Component -->
-    <app-adminprofile></app-adminprofile>
+    <app-adminprofiles></app-adminprofiles>
+
+    <!-- Show animation while data loads -->
+<!-- <ng-lottie
+  *ngIf="!cardData"
+  [options]="animationOptions"
+  width="150px"
+  height="150px">
+</ng-lottie> -->
+
+<!-- Show cards once data is ready -->
+<app-cards
+  [cardData]="cardData"
+  (cardClick)="onCardClick($event)">
+</app-cards>
 
     <!-- Cards Component -->
-    <app-cards [cardData]="cardData" (cardClick)="onCardClick($event)"></app-cards>
+   <!-- <app-cards [cardData]="cardData" (cardClick)="onCardClick($event)"></app-cards>-->
 
     <!-- Company Performance Chart -->
     <app-company-performance-chart></app-company-performance-chart>

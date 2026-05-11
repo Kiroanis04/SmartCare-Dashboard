@@ -10,17 +10,24 @@ import { CardData, AdminProfile } from './Models/dashboard.model';
 import { CompanyPerformanceChartComponent } from './Components/company-performance-chart/company-performance-chart';
 import { LowStockTableComponent } from './Components/low-stock-table/low-stock-table';
 import { Sidebar } from "../../Shared/Components/sidebar/sidebar";
+import { LottieComponent } from 'ngx-lottie';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Adminprofile, CardsComponent, BarChartComponent, DonutChartComponent, CompanyPerformanceChartComponent, LowStockTableComponent],
+  imports: [CommonModule, Adminprofile, CardsComponent, BarChartComponent, DonutChartComponent, CompanyPerformanceChartComponent, LowStockTableComponent, LottieComponent],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   cardData?: CardData;
   private subscriptions: Subscription[] = [];
+
+//   animationOptions = {
+//   path: '/SmartCare-Dashboard/public/Animations/Animated Dashboards.tgs',
+//   loop: true,
+//   autoplay: true
+// };
 
   constructor(private dashboardService: DashboardService) {}
 
@@ -31,7 +38,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cardData = data;
       })
     );
-
     // Subscribe to admin profile
   //   this.subscriptions.push(
   //     this.dashboardService.getAdminProfile().subscribe((profile: AdminProfile) => {
@@ -39,6 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   //     })
   //   );
   // }
+
   }
   onCardClick(cardId: string) {
     console.log('Card clicked:', cardId);
