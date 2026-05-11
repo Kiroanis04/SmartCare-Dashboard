@@ -30,6 +30,7 @@ export class CardsComponent implements OnInit, OnChanges {
   };
 
  ngOnInit() {
+  this.updateCards();
   this.dashboardService.getSummer().subscribe({
     next: (response: any) => {
       this.totalUsers = response?.data?.totalClients ?? 0;
@@ -46,13 +47,13 @@ export class CardsComponent implements OnInit, OnChanges {
 }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['cardData'] && this.cardData) {
+    if (changes['cardData']) {
       this.updateCards();
     }
   }
 
   private updateCards() {
-    if (!this.cardData) return;
+    //if (!this.cardData) return;
     this.cards = [
       {
         id: 'total-accounts',
@@ -60,7 +61,7 @@ export class CardsComponent implements OnInit, OnChanges {
         value: this.totalUsers,         // ← real API count
         icon: this.iconPaths.accounts,
         iconGradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-        trend: this.cardData.trends.accounts,
+        trend: this.cardData?.trends?.accounts ?? 0,
         format: 'number'
       },
       {
@@ -69,7 +70,7 @@ export class CardsComponent implements OnInit, OnChanges {
         value: this.totalRevenue,
         icon: this.iconPaths.revenue,
         iconGradient: 'linear-gradient(135deg, #10b981, #059669)',
-        trend: this.cardData.trends.revenue,
+        trend: this.cardData?.trends?.revenue?? 0,
         format: 'currency'
       },
       {
@@ -78,7 +79,7 @@ export class CardsComponent implements OnInit, OnChanges {
         value: this.totalBranches,
         icon: this.iconPaths.sales,
         iconGradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
-        trend: this.cardData.trends.sales,
+        trend: this.cardData?.trends?.sales?? 0,
         format: 'number'
       },
       {
@@ -87,7 +88,7 @@ export class CardsComponent implements OnInit, OnChanges {
         value: this.totalOrders,
         icon: this.iconPaths.orders,
         iconGradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-        trend: this.cardData.trends.orders,
+        trend: this.cardData?.trends?.orders?? 0,
         format: 'number'
       }
     ];
