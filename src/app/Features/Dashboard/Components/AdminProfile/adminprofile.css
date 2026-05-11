@@ -113,6 +113,28 @@
     white-space: normal;
   }
 
+.animated-name {
+  display: inline-block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(125deg, #2563eb, #7c3aed, #db2777);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid #3b82f6;
+  animation: blinkCursor 0.7s step-end infinite;
+  min-width: 2px;
+  min-height: 1.5rem;
+  vertical-align: bottom;
+}
+
+@keyframes blinkCursor {
+  0%, 100% { border-color: #3b82f6; }
+  50%       { border-color: transparent; }
+}
+
   .profile-details {
     justify-content: center;
   }

@@ -1,7 +1,7 @@
-<div class="admin-profile-card" *ngIf="profile">
+<div class="admin-profile-card" *ngIf="!isLoading && profile">
   <div class="profile-container">
     <div class="profile-avatar">
-      <img [src]="profile.avatar" [alt]="profile.username" class="avatar">
+      <img [src]="profile.avatar" [alt]="profile.firstName" class="avatar" />
       <div class="online-status"></div>
     </div>
 
@@ -9,7 +9,7 @@
       <div class="welcome-section">
         <span class="greeting-text">Welcome,</span>
         <div class="name-wrapper">
-          <span #usernameSpan class="animated-name"></span>
+          <span #usernameSpan class="animated-name">{{ profile.firstName }}</span>
         </div>
       </div>
 
@@ -25,4 +25,8 @@
       </div>
     </div>
   </div>
+</div>
+
+<div *ngIf="isLoading" class="profile-loading">
+  <div class="loading-shimmer"></div>
 </div>
