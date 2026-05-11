@@ -1,0 +1,302 @@
+.products-wrapper {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.mat-elevation-z8 {
+  border-radius: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-shadow: 0 8px 32px rgba(108, 99, 172, 0.15) !important;
+  background: #ffffff;
+  margin: 0;
+}
+
+.table-card {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+}
+
+.mat-mdc-header-row {
+  background: linear-gradient(135deg, #1a1a4e 0%, #3b3488 60%, #6c63ac 100%) !important;
+}
+
+.mat-mdc-header-cell {
+  color: #ffffff !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  border-bottom: none !important;
+  padding: 16px 20px !important;
+  white-space: nowrap;
+}
+
+.mat-mdc-row {
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(108, 99, 172, 0.08) !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(108, 99, 172, 0.06) !important;
+}
+
+.mat-mdc-row:nth-child(even) {
+  background-color: rgba(137, 207, 240, 0.05);
+}
+
+.mat-mdc-cell {
+  color: #2d2b6b !important;
+  font-size: 0.92rem !important;
+  padding: 14px 20px !important;
+  border-bottom: none !important;
+}
+
+.mat-mdc-cell:first-child {
+  font-weight: 700;
+  color: #6c63ac !important;
+  text-align: center;
+}
+
+/* Paginator */
+.mat-mdc-paginator {
+  background: linear-gradient(135deg, #f5f4ff, #eef4fd) !important;
+  border-top: 1px solid rgba(108, 99, 172, 0.12) !important;
+  color: #2d2b6b !important;
+  padding: 4px 8px;
+}
+
+.mat-mdc-paginator .mat-mdc-select-value,
+.mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: #3b3488 !important;
+}
+
+/* Table header bar */
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(108, 99, 172, 0.1);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.table-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a4e;
+}
+
+.table-count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Filter */
+.filter-accordion {
+  margin-bottom: 24px;
+}
+
+.filter-accordion .mat-expansion-panel {
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.filter-field { width: 100%; }
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(108, 99, 172, 0.1);
+}
+
+.btn-apply,
+.btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-apply {
+  background: linear-gradient(135deg, #3b3488, #6c63ac) !important;
+  color: white !important;
+}
+
+.btn-reset {
+  color: #3b3488 !important;
+  border-color: #3b3488 !important;
+}
+
+/* Licence badge */
+.licence-badge {
+  background: #ede9ff;
+  color: #3b3488;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Confirm button */
+.confirm-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #4caf50;
+  color: white;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #388e3c;
+  transform: scale(1.03);
+}
+
+.confirm-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.confirm-btn.confirmed {
+  background: #2e7d32;
+}
+
+.confirm-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Dialog overlay */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeOverlay 0.2s ease;
+}
+
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dialog-box {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 36px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.dialog-icon mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #4caf50;
+  margin-bottom: 16px;
+}
+
+.dialog-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a4e;
+  margin: 0 0 12px;
+}
+
+.dialog-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+
+.dialog-close-btn {
+  padding: 10px 32px;
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dialog-close-btn:hover { opacity: 0.9; }
+
+/* Product row */
+.product-row {
+  cursor: default;
+  transition: background 0.2s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b3488, #6c63ac);
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .products-wrapper { padding: 12px; }
+
+  .filter-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  .filter-actions { flex-direction: column; }
+
+  .btn-apply, .btn-reset { width: 100%; justify-content: center; }
+
+  .mat-mdc-header-cell { padding: 12px !important; font-size: 0.75rem !important; }
+  .mat-mdc-cell        { padding: 12px !important; font-size: 0.82rem !important; }
+
+  .table-card { overflow-x: auto; }
+  table       { min-width: 650px; }
+}
+
+@media (max-width: 480px) {
+  .mat-mdc-header-cell { padding: 10px 8px !important; font-size: 0.7rem !important; }
+  .mat-mdc-cell        { padding: 10px 8px !important; font-size: 0.75rem !important; }
+  table                { min-width: 560px; }
+}
