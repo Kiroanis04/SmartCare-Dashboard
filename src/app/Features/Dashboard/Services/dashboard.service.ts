@@ -113,22 +113,22 @@ export class DashboardService {
   private initializeBranchData() {
     // Current Month Data
     const currentMonthData: BranchData[] = [
-      { name: 'Cairo Branch', revenue: 1250000, sales: 800000, orders: 3420, color: '#3b82f6' },
-      { name: 'Alex Branch', revenue: 980000, sales: 750000, orders: 2780, color: '#10b981' },
-      { name: 'Giza Branch', revenue: 750000, sales: 600000, orders: 2150, color: '#f59e0b' },
-      { name: 'Port Said', revenue: 520000, sales: 420000, orders: 1450, color: '#8b5cf6' },
-      { name: 'Ismailia', revenue: 380000, sales: 310000, orders: 1080, color: '#ec489a' },
-      { name: 'Luxor Branch', revenue: 290000, sales: 230000, orders: 890, color: '#06b6d4' }
+      { name: 'Mansoura Store', revenue: 1250000, sales: 800000, orders: 300420, color: '#3b82f6' },
+      { name: 'Azbt El-NAKHEL Store', revenue: 980000, sales: 750000, orders: 200780, color: '#10b981' },
+      { name: 'Down Town Cairo Store', revenue: 750000, sales: 600000, orders: 210050, color: '#f59e0b' },
+      { name: 'Hurghada Store', revenue: 520000, sales: 420000, orders: 104500, color: '#8b5cf6' },
+      { name: 'Sohag Store', revenue: 380000, sales: 310000, orders: 100080, color: '#ec489a' },
+      { name: 'El- Damerdash Branch', revenue: 290000, sales: 230000, orders: 80090, color: '#06b6d4' },
     ];
 
     // Last Month Data
     const lastMonthData: BranchData[] = [
-      { name: 'Cairo Branch', revenue: 1180000, sales: 750000, orders: 3250, color: '#3b82f6' },
-      { name: 'Alex Branch', revenue: 920000, sales: 700000, orders: 2650, color: '#10b981' },
-      { name: 'Giza Branch', revenue: 710000, sales: 560000, orders: 2050, color: '#f59e0b' },
-      { name: 'Port Said', revenue: 490000, sales: 390000, orders: 1380, color: '#8b5cf6' },
-      { name: 'Ismailia', revenue: 360000, sales: 290000, orders: 1020, color: '#ec489a' },
-      { name: 'Luxor Branch', revenue: 275000, sales: 220000, orders: 850, color: '#06b6d4' }
+      { name: 'Mansoura Store', revenue: 1180000, sales: 750000, orders: 300250, color: '#3b82f6' },
+      { name: 'Azbt El-NAKHEL Store', revenue: 920000, sales: 700000, orders: 200650, color: '#10b981' },
+      { name: 'Down Town Cairo Store', revenue: 710000, sales: 560000, orders: 200050, color: '#f59e0b' },
+      { name: 'Hurghada Store', revenue: 490000, sales: 390000, orders: 103080, color: '#8b5cf6' },
+      { name: 'Sohag Store', revenue: 360000, sales: 290000, orders: 100020, color: '#ec489a' },
+      { name: 'El- Damerdash Branch', revenue: 275000, sales: 220000, orders: 80050, color: '#06b6d4' }
     ];
 
     this.branchDataCache.set('current', currentMonthData);
