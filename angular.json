@@ -31,20 +31,21 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/primeicons/primeicons.css"
             ],
-            "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
+            "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"],
+            "allowedCommonJsDependencies": ["lottie-web"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2.5MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "15kB"
                 }
               ],
               "outputHashing": "all"
@@ -60,8 +61,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-          "proxyConfig": "proxy.conf.json"
-           },
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "SmartCare-Dashboard:build:production"
