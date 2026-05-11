@@ -343,6 +343,7 @@ table {
   .change-branch-btn {
     padding: 3px 8px;
     font-size: 0.7rem;
+    color: white !important;
   }
 
   .mat-mdc-paginator-range-label {
@@ -406,4 +407,14 @@ table {
   padding: 0 !important;
   border-radius: 16px !important;
   overflow: hidden;
+}
+
+::ng-deep .change-branch-btn .mdc-button__label,
+::ng-deep .change-branch-btn .mat-mdc-button-touch-target,
+::ng-deep .change-branch-btn {
+  color: white !important;
+}
+
+::ng-deep .change-branch-btn mat-icon {
+  color: white !important;
 }

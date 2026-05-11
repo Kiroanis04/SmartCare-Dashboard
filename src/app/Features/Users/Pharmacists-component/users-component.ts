@@ -11,32 +11,28 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 export interface Pharmacist {
-  position: number;
+  position:       number;
+  id:             string;
+  storeId:        string;
   pharmacistName: string;
-  branchName: string;
-  licenseNumber: string;
-  email: string;
-  phone: string;
-  joinDate: Date;
-  status: 'Active' | 'Inactive' | 'On Leave';
-  currentBranch: string;
+  branchName:     string;
+  licenseNumber:  string;
+  email:          string;
+  phone:          string;
+  status:         'Active' | 'Inactive' | 'On Leave';
+  currentBranch:  string;
 }
 
-// Change Branch Dialog Component
+// ── Change Branch Dialog ──────────────────────────────────────────────────────
 @Component({
   selector: 'change-branch-dialog',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule
+    CommonModule, FormsModule, MatButtonModule, MatIconModule,
+    MatDialogModule, MatFormFieldModule, MatSelectModule, MatInputModule
   ],
   template: `
     <div class="change-branch-dialog">
@@ -51,15 +47,15 @@ export interface Pharmacist {
         <div class="pharmacist-info">
           <div class="info-row">
             <mat-icon>person</mat-icon>
-            <span><strong>Pharmacist:</strong> {{ data.pharmacistName }}</span>
+            <span><strong>Pharmacist:</strong> {{ data.pharmacist.pharmacistName }}</span>
           </div>
           <div class="info-row">
             <mat-icon>badge</mat-icon>
-            <span><strong>License:</strong> {{ data.licenseNumber }}</span>
+            <span><strong>License:</strong> {{ data.pharmacist.licenseNumber }}</span>
           </div>
           <div class="info-row">
             <mat-icon>store</mat-icon>
-            <span><strong>Current Branch:</strong> {{ data.currentBranch }}</span>
+            <span><strong>Current Branch:</strong> {{ data.pharmacist.currentBranch }}</span>
           </div>
         </div>
 
@@ -74,341 +70,187 @@ export interface Pharmacist {
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Reason for Change (Optional)</mat-label>
-          <textarea matInput rows="3" [(ngModel)]="changeReason" placeholder="Enter reason for branch change..."></textarea>
+          <textarea matInput rows="3" [(ngModel)]="changeReason"
+            placeholder="Enter reason for branch change..."></textarea>
         </mat-form-field>
       </div>
 
       <div class="dialog-footer">
         <button mat-stroked-button (click)="dialogRef.close()">Cancel</button>
-        <button mat-flat-button class="change-btn" (click)="confirmChange()" [disabled]="!selectedNewBranch">
+        <button mat-flat-button class="change-btn"
+          (click)="confirmChange()" [disabled]="!selectedNewBranch">
           <mat-icon>swap_horiz</mat-icon> Confirm Change
         </button>
       </div>
     </div>
   `,
   styles: [`
-    .change-branch-dialog {
-      width: 100%;
-      max-width: 500px;
-      animation: slideIn 0.3s ease;
-    }
-
+    .change-branch-dialog { width: 100%; max-width: 500px; animation: slideIn 0.3s ease; }
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-
     .dialog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       padding: 20px 24px;
       background: linear-gradient(135deg, #1a1a4e 0%, #3b3488 100%);
-      color: white;
-      border-radius: 8px 8px 0 0;
+      color: white; border-radius: 8px 8px 0 0;
     }
-
-    .dialog-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .close-btn {
-      color: white;
-    }
-
-    .dialog-content {
-      padding: 24px;
-    }
-
+    .dialog-header h2 { margin: 0; font-size: 1.5rem; }
+    .close-btn { color: white; }
+    .dialog-content { padding: 24px; }
     .pharmacist-info {
-      background: #f8f9ff;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
+      background: #f8f9ff; border-radius: 12px;
+      padding: 16px; margin-bottom: 24px;
     }
-
     .info-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(108, 99, 172, 0.1);
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 0; border-bottom: 1px solid rgba(108,99,172,0.1);
     }
-
-    .info-row:last-child {
-      border-bottom: none;
-    }
-
-    .info-row mat-icon {
-      color: #6c63ac;
-    }
-
-    .full-width {
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
+    .info-row:last-child { border-bottom: none; }
+    .info-row mat-icon { color: #6c63ac; }
+    .full-width { width: 100%; margin-bottom: 16px; }
     .dialog-footer {
-      padding: 16px 24px;
-      border-top: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
+      padding: 16px 24px; border-top: 1px solid #e0e0e0;
+      display: flex; justify-content: flex-end; gap: 12px;
     }
-
     .change-btn {
       background: linear-gradient(135deg, #3b3488, #6c63ac);
-      color: white;
+      color: white !important;
     }
-
-    .change-btn:hover {
-      transform: translateY(-2px);
-    }
-
     @media (max-width: 600px) {
-      .dialog-header h2 {
-        font-size: 1.2rem;
-      }
-
-      .dialog-content {
-        padding: 16px;
-      }
-
-      .info-row {
-        font-size: 0.9rem;
-      }
+      .dialog-header h2 { font-size: 1.2rem; }
+      .dialog-content { padding: 16px; }
+      .info-row { font-size: 0.9rem; }
     }
   `]
 })
 export class ChangeBranchDialog {
-  selectedNewBranch: string = '';
-  changeReason: string = '';
-  availableBranches: string[] = [
-    'Cairo Branch',
-    'Alex Branch',
-    'Giza Branch',
-    'Port Said',
-    'Ismailia',
-    'Luxor Branch',
-    'Mansoura Branch',
-    'Aswan Branch'
-  ];
+  selectedNewBranch = '';
+  changeReason      = '';
+  availableBranches: string[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<ChangeBranchDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: Pharmacist
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: { pharmacist: Pharmacist; branches: string[] }
+  ) {
+    this.availableBranches = data.branches.filter(b => b !== data.pharmacist.currentBranch);
+  }
 
   confirmChange() {
     if (this.selectedNewBranch) {
       this.dialogRef.close({
         newBranch: this.selectedNewBranch,
-        reason: this.changeReason
+        reason:    this.changeReason
       });
     }
   }
 }
 
-// Main Pharmacist Component
+// ── Main Pharmacist Component ─────────────────────────────────────────────────
 @Component({
   selector: 'app-pharmacist-component',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    MatButtonModule,
-    MatChipsModule,
-    MatDialogModule
+    CommonModule, FormsModule, MatTableModule, MatPaginatorModule,
+    MatExpansionModule, MatFormFieldModule, MatInputModule,
+    MatSelectModule, MatIconModule, MatButtonModule,
+    MatChipsModule, MatDialogModule
   ],
   templateUrl: './users-component.html',
   styleUrls: ['./users-component.css']
 })
 export class PharmacistComponent implements AfterViewInit {
-  displayedColumns: string[] = ['position', 'pharmacistName', 'branchName', 'licenseNumber', 'email', 'phone', 'status', 'action'];
+  displayedColumns: string[] = [
+    'position', 'pharmacistName', 'branchName',
+    'licenseNumber', 'email', 'phone', 'status', 'action'
+  ];
   dataSource = new MatTableDataSource<Pharmacist>([]);
 
   // Filter properties
   searchPharmacistName = '';
-  selectedBranchName = '';
-  selectedStatus = '';
+  selectedBranchName   = '';
+  selectedStatus       = '';
 
   // Filter options
-  BranchName: string[] = [];
+  BranchName:    string[] = [];
   StatusOptions: string[] = ['Active', 'Inactive', 'On Leave'];
+
+  // Stores from API
+  stores: { id: string; name: string }[] = [];
+
+  // Original data for filtering
+  private allPharmacists: Pharmacist[] = [];
+
+  isLoading         = false;
+  isChangingBranch  = false;
+  errorMessage      = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private dialog: MatDialog) {
+  constructor(private dialog: MatDialog, private http: HttpClient) {
     this.loadPharmacistsData();
+    this.loadStores();
   }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
 
-  loadPharmacistsData() {
-    const pharmacistsData: Pharmacist[] = [
-      {
-        position: 1,
-        pharmacistName: 'Dr. Ahmed Hassan',
-        branchName: 'Cairo Branch',
-        licenseNumber: 'PH-2024-001',
-        email: 'ahmed.hassan@smartcare.com',
-        phone: '+201234567890',
-        joinDate: new Date(2023, 5, 15),
-        status: 'Active',
-        currentBranch: 'Cairo Branch'
+  // ── Load Stores ───────────────────────────────────────────────────────────
+  loadStores() {
+    this.http.get<any>('/api/stores').subscribe({
+      next: (response) => {
+        if (response.succeeded && response.data) {
+          this.stores     = response.data.map((s: any) => ({ id: s.id, name: s.name }));
+          this.BranchName = this.stores.map(s => s.name);
+        }
       },
-      {
-        position: 2,
-        pharmacistName: 'Dr. Sara Mahmoud',
-        branchName: 'Alex Branch',
-        licenseNumber: 'PH-2024-002',
-        email: 'sara.mahmoud@smartcare.com',
-        phone: '+201234567891',
-        joinDate: new Date(2023, 6, 20),
-        status: 'Active',
-        currentBranch: 'Alex Branch'
-      },
-      {
-        position: 3,
-        pharmacistName: 'Dr. Mohamed Ali',
-        branchName: 'Giza Branch',
-        licenseNumber: 'PH-2024-003',
-        email: 'mohamed.ali@smartcare.com',
-        phone: '+201234567892',
-        joinDate: new Date(2023, 7, 10),
-        status: 'Active',
-        currentBranch: 'Giza Branch'
-      },
-      {
-        position: 4,
-        pharmacistName: 'Dr. Nour El-Din',
-        branchName: 'Port Said',
-        licenseNumber: 'PH-2024-004',
-        email: 'nour.eldin@smartcare.com',
-        phone: '+201234567893',
-        joinDate: new Date(2023, 8, 5),
-        status: 'On Leave',
-        currentBranch: 'Port Said'
-      },
-      {
-        position: 5,
-        pharmacistName: 'Dr. Hana Youssef',
-        branchName: 'Ismailia',
-        licenseNumber: 'PH-2024-005',
-        email: 'hana.youssef@smartcare.com',
-        phone: '+201234567894',
-        joinDate: new Date(2023, 9, 12),
-        status: 'Active',
-        currentBranch: 'Ismailia'
-      },
-      {
-        position: 6,
-        pharmacistName: 'Dr. Karim Samir',
-        branchName: 'Luxor Branch',
-        licenseNumber: 'PH-2024-006',
-        email: 'karim.samir@smartcare.com',
-        phone: '+201234567895',
-        joinDate: new Date(2023, 10, 18),
-        status: 'Inactive',
-        currentBranch: 'Luxor Branch'
-      },
-      {
-        position: 7,
-        pharmacistName: 'Dr. Laila Ibrahim',
-        branchName: 'Cairo Branch',
-        licenseNumber: 'PH-2024-007',
-        email: 'laila.ibrahim@smartcare.com',
-        phone: '+201234567896',
-        joinDate: new Date(2023, 11, 22),
-        status: 'Active',
-        currentBranch: 'Cairo Branch'
-      },
-      {
-        position: 8,
-        pharmacistName: 'Dr. Omar Farouk',
-        branchName: 'Alex Branch',
-        licenseNumber: 'PH-2024-008',
-        email: 'omar.farouk@smartcare.com',
-        phone: '+201234567897',
-        joinDate: new Date(2024, 0, 8),
-        status: 'Active',
-        currentBranch: 'Alex Branch'
-      },
-      {
-        position: 9,
-        pharmacistName: 'Dr. Yasmine Adel',
-        branchName: 'Mansoura Branch',
-        licenseNumber: 'PH-2024-009',
-        email: 'yasmine.adel@smartcare.com',
-        phone: '+201234567898',
-        joinDate: new Date(2024, 1, 14),
-        status: 'Active',
-        currentBranch: 'Mansoura Branch'
-      },
-      {
-        position: 10,
-        pharmacistName: 'Dr. Khaled Mostafa',
-        branchName: 'Aswan Branch',
-        licenseNumber: 'PH-2024-010',
-        email: 'khaled.mostafa@smartcare.com',
-        phone: '+201234567899',
-        joinDate: new Date(2024, 2, 20),
-        status: 'On Leave',
-        currentBranch: 'Aswan Branch'
-      },
-      {
-        position: 11,
-        pharmacistName: 'Dr. Reem Abdelrahman',
-        branchName: 'Cairo Branch',
-        licenseNumber: 'PH-2024-011',
-        email: 'reem.abdelrahman@smartcare.com',
-        phone: '+201234567900',
-        joinDate: new Date(2024, 3, 5),
-        status: 'Active',
-        currentBranch: 'Cairo Branch'
-      },
-      {
-        position: 12,
-        pharmacistName: 'Dr. Tamer Said',
-        branchName: 'Giza Branch',
-        licenseNumber: 'PH-2024-012',
-        email: 'tamer.said@smartcare.com',
-        phone: '+201234567901',
-        joinDate: new Date(2024, 4, 10),
-        status: 'Active',
-        currentBranch: 'Giza Branch'
-      }
-    ];
-
-    this.dataSource.data = pharmacistsData;
-
-    // Extract filter options
-    this.BranchName = [...new Set(pharmacistsData.map(p => p.branchName))];
+      error: (err) => console.error('Failed to load stores:', err)
+    });
   }
 
+  // ── Load Pharmacists ──────────────────────────────────────────────────────
+  loadPharmacistsData() {
+    this.isLoading    = true;
+    this.errorMessage = '';
+
+    this.http.get<any>('/api/admin/dashboard/pharmacists').subscribe({
+      next: (response) => {
+        if (response.succeeded && response.data) {
+          const pharmacistsData: Pharmacist[] = response.data.map((item: any, index: number) => ({
+            position:       index + 1,
+            id:             item.id            ?? item.userId ?? '',
+            storeId:        item.storeId       ?? '',
+            pharmacistName: `${item.firstName} ${item.lastName}`,
+            branchName:     item.storeName     ?? '',
+            licenseNumber:  item.licenseNumber ?? '',
+            email:          item.email         ?? '',
+            phone:          item.phoneNumber   ?? '',
+            status:         (item.isActive ? 'Active' : 'Inactive') as 'Active' | 'Inactive',
+            currentBranch:  item.storeName     ?? ''
+          }));
+
+          this.dataSource.data = pharmacistsData;
+          this.allPharmacists  = pharmacistsData;
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load pharmacists:', err);
+        this.errorMessage = 'Failed to load pharmacists. Please try again.';
+        this.isLoading    = false;
+      }
+    });
+  }
+
+  // ── Filters ───────────────────────────────────────────────────────────────
   applyFilters() {
-    const filtered = this.dataSource.data.filter(p => {
+    const filtered = this.allPharmacists.filter(p => {
       const matchSearch = !this.searchPharmacistName ||
         p.pharmacistName.toLowerCase().includes(this.searchPharmacistName.toLowerCase());
       const matchBranch = !this.selectedBranchName || p.branchName === this.selectedBranchName;
-      const matchStatus = !this.selectedStatus || p.status === this.selectedStatus;
-
+      const matchStatus = !this.selectedStatus      || p.status    === this.selectedStatus;
       return matchSearch && matchBranch && matchStatus;
     });
 
@@ -418,44 +260,68 @@ export class PharmacistComponent implements AfterViewInit {
 
   resetFilters() {
     this.searchPharmacistName = '';
-    this.selectedBranchName = '';
-    this.selectedStatus = '';
-    this.loadPharmacistsData();
+    this.selectedBranchName   = '';
+    this.selectedStatus       = '';
+    this.dataSource.data      = [...this.allPharmacists];
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
+  // ── Change Branch ─────────────────────────────────────────────────────────
   changeBranch(pharmacist: Pharmacist) {
     const dialogRef = this.dialog.open(ChangeBranchDialog, {
-      data: pharmacist,
+      data: { pharmacist, branches: this.stores.map(s => s.name) },
       width: '90%',
       maxWidth: '500px',
       panelClass: 'change-branch-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Update the pharmacist's branch
-        pharmacist.branchName = result.newBranch;
-        pharmacist.currentBranch = result.newBranch;
+      if (!result) return;
 
-        // You can also save the change reason to a backend if needed
-        console.log(`Branch changed for ${pharmacist.pharmacistName} to ${result.newBranch}. Reason: ${result.reason}`);
+      const selectedStore = this.stores.find(s => s.name === result.newBranch);
+      if (!selectedStore) return;
 
-        // Refresh the table
-        this.dataSource.data = [...this.dataSource.data];
+      const url = `/api/admin/stores/pharmacists/${pharmacist.id}/change-branch/${selectedStore.id}`;
 
-        // Show success message (you can implement a toast notification)
-        alert(`Branch changed successfully for ${pharmacist.pharmacistName} to ${result.newBranch}`);
-      }
+      this.isChangingBranch = true;
+
+      this.http.put<any>(url, {}).subscribe({
+        next: (response) => {
+          if (response.succeeded) {
+            // Update locally
+            pharmacist.branchName    = result.newBranch;
+            pharmacist.currentBranch = result.newBranch;
+            pharmacist.storeId       = selectedStore.id;
+
+            // Update in allPharmacists too so filters stay consistent
+            const original = this.allPharmacists.find(p => p.id === pharmacist.id);
+            if (original) {
+              original.branchName    = result.newBranch;
+              original.currentBranch = result.newBranch;
+              original.storeId       = selectedStore.id;
+            }
+
+            this.dataSource.data = [...this.dataSource.data];
+            console.log(`Branch changed successfully for ${pharmacist.pharmacistName} to ${result.newBranch}`);
+          }
+          this.isChangingBranch = false;
+        },
+        error: (err) => {
+          console.error('Failed to change branch:', err);
+          alert('Failed to change branch. Please try again.');
+          this.isChangingBranch = false;
+        }
+      });
     });
   }
 
+  // ── Status Class ──────────────────────────────────────────────────────────
   getStatusClass(status: string): string {
-    switch(status) {
-      case 'Active': return 'status-active';
+    switch (status) {
+      case 'Active':   return 'status-active';
       case 'Inactive': return 'status-inactive';
       case 'On Leave': return 'status-leave';
-      default: return '';
+      default:         return '';
     }
   }
 }
