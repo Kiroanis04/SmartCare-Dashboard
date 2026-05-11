@@ -26,7 +26,7 @@ export class Login {
 
   OnLogin() {
     const formValue = this.loginForm.value;
-    this.http.post("https://smartcarepharmacy.tryasp.net/api/auth/login", formValue).subscribe({
+    this.http.post("/api/auth/login", formValue).subscribe({
       next: (response: any) => {
         if (response.succeeded) {
           this._snackBar.open("Login Successful ✅", "Close", {
