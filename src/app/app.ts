@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DashboardComponent } from "./Features/Dashboard/dashboard";
 import { DonutChartComponent } from "./Features/Dashboard/Components/category-distribution-chart/category-distribution-chart";
@@ -15,4 +15,11 @@ import { Sidebar } from "./Shared/Components/sidebar/sidebar";
 })
 export class App {
   title = 'SmartCare-Dashboard';
+
+  /**
+   *
+   */
+  constructor(public router: Router) {
+
+  }
 }

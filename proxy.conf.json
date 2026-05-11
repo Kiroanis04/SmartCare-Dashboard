@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://smartcarepharmacy.tryasp.net",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

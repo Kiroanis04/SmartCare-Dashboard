@@ -1,6 +1,6 @@
 <!-- Main Application Layout -->
 <div class="app-container">
-  <app-sidebar></app-sidebar>
+  <app-sidebar *ngIf="router.url !== '/'"></app-sidebar>
 
   <main class="main-content">
     <router-outlet></router-outlet>

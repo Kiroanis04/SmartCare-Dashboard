@@ -4,6 +4,7 @@ import { Login } from './Features/Auth/Components/login/login';
 import { ProductsComponent } from './Features/Products/products-component/products-component';
 import { OrdersComponent } from './Features/Orders/orders-component/orders-component';
 import { PharmacistComponent } from './Features/Users/Pharmacists-component/users-component';
+import { Notifications } from './Features/notifications/notifications';
 
 export const routes: Routes = [
   {
@@ -27,5 +28,8 @@ export const routes: Routes = [
     path: 'users/pharmacists',
     component: PharmacistComponent
     },
-
+  {
+    path: 'notifications',
+    component: Notifications
+  },
 ];

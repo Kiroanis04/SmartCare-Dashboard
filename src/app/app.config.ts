@@ -6,9 +6,14 @@ import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { tokenInterceptor } from './interceptor/token-interceptor';
+import {provideLottieOptions} from 'ngx-lottie';
+import player from 'lottie-web'
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideLottieOptions({
+      player: ()=> player,
+    }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([tokenInterceptor])),
     provideCharts(withDefaultRegisterables()),
@@ -22,3 +27,4 @@ export const appConfig: ApplicationConfig = {
         })
   ]
 };
+
