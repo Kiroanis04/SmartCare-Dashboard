@@ -365,6 +365,10 @@
     padding: 0.5rem;
   }
 
+  .filter-panel.expanded {
+    max-height: 400px;
+  }
+
   .stock-circle {
     width: 30px;
     height: 30px;

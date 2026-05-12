@@ -8,7 +8,7 @@
 
     <button class="filter-btn" (click)="toggleFilterPanel()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="22 3 2 3 10 13 10 21 14 18 14 13 22 3"/>
+        <polygon points="22 3 2 3 10 13 10 21 14 18 14 13 22 3" />
       </svg>
       Filter
     </button>
@@ -20,23 +20,18 @@
       <div class="filter-row">
         <div class="filter-group">
           <label>Threshold (Max Stock)</label>
-          <input
-            type="number"
-            [(ngModel)]="thresholdValue"
-            (change)="onThresholdChange()"
-            class="threshold-input"
-            min="0"
-            max="100">
+          <input type="number" [(ngModel)]="thresholdValue" class="threshold-input"
+                 min="0" max="100" />
         </div>
 
         <div class="filter-group">
           <label>Branch Name (Optional)</label>
-          <select [(ngModel)]="selectedStoreId" (change)="onBranchChange()" class="branch-select">
-  <option value="all">All Branches</option>
-  <option *ngFor="let s of storeOptions" [value]="s.storeId">
-    {{ s.storeName }}
-  </option>
-</select>
+          <select [(ngModel)]="selectedStoreId" class="branch-select">
+            <option value="all">All Branches</option>
+            <option *ngFor="let s of storeOptions" [value]="s.storeId">
+              {{ s.storeName }}
+            </option>
+          </select>
         </div>
 
         <div class="filter-actions">
@@ -75,7 +70,7 @@
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- Data Table -->
   <div class="table-wrapper">
     <table class="stock-table">
       <thead>
@@ -118,11 +113,12 @@
         </tr>
       </tbody>
     </table>
-    <mat-paginator
-  [length]="totalCount"
-  [pageSize]="pageSize"
-  [pageSizeOptions]="pageSizeOptions"
-  showFirstLastButtons>
-</mat-paginator>
+
+    <!-- Material Paginator -->
+    <mat-paginator [length]="totalCount"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="pageSizeOptions"
+                   showFirstLastButtons>
+    </mat-paginator>
   </div>
 </div>
