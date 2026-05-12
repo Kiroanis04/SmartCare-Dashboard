@@ -14,94 +14,100 @@ export class Adminprofile implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('usernameSpan') usernameSpan!: ElementRef<HTMLSpanElement>;
 
   profile: AdminProfile | null = null;
-  isLoading    = true;
+  isLoading = true;
   errorMessage = '';
 
-  private currentIndex  = 0;
+  private animationCompleted = false;
+  private currentIndex = 0;
   private typingInterval: any = null;
-  private targetElement!: HTMLSpanElement;
+  private viewInitialized = false;
 
   constructor(private dashboardService: DashboardService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAdminProfile();
   }
 
-  ngAfterViewInit() {}
-
-loadAdminProfile() {
-  this.isLoading = true;
-  this.dashboardService.getAdminProfile().subscribe({
-    next: (response: AdminProfileApiResponse) => {
-      if (response.succeeded && response.data) {
-        this.profile = {
-          id:        response.data.id,
-          firstName: response.data.firstName,
-          lastName:  response.data.lastName,
-          userName:  response.data.userName,
-          email:     response.data.email,
-          role:      'Administrator',
-          avatar:    `https://ui-avatars.com/api/?background=6c63ac&color=fff&rounded=true&size=80&bold=true&name=${response.data.firstName}+${response.data.lastName}&length=2`
-        };
-
-        // ← انتظر الـ DOM يتحدث الأول
-        setTimeout(() => {
-          if (this.usernameSpan) {
-            this.targetElement = this.usernameSpan.nativeElement;
-            this.startTypewriterAnimation();
-          }
-        }, 100);
-
-      } else {
-        this.setDefaultProfile();
-      }
-      this.isLoading = false;
-    },
-    error: () => {
-      this.setDefaultProfile();
-      this.isLoading = false;
+  ngAfterViewInit(): void {
+    this.viewInitialized = true;
+    if (this.profile && this.usernameSpan) {
+      this.startTypewriterAnimation();
     }
-  });
-}
-
-  setDefaultProfile() {
-    this.profile = {
-      id:        'default',
-      firstName: 'Admin',
-      lastName:  'User',
-      userName:  'Admin User',
-      email:     'admin@smartcare.com',
-      role:      'Administrator',
-      avatar:    'https://ui-avatars.com/api/?background=6c63ac&color=fff&rounded=true&size=80&bold=true&name=Admin+User&length=2'
-    };
-    setTimeout(() => {
-      if (this.usernameSpan) {
-        this.targetElement = this.usernameSpan.nativeElement;
-        this.startTypewriterAnimation();
-      }
-    }, 0);
   }
 
-startTypewriterAnimation() {
-  if (!this.targetElement || !this.profile) return;
-  if (this.typingInterval) clearInterval(this.typingInterval);
+  loadAdminProfile(): void {
+    this.animationCompleted = false;
+    this.isLoading = true;
+    this.dashboardService.getAdminProfile().subscribe({
+      next: (response: AdminProfileApiResponse) => {
+        if (response.succeeded && response.data) {
+          this.profile = {
+            id: response.data.id,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            userName: response.data.userName,
+            email: response.data.email,
+            role: 'Administrator',
+            avatar: `https://ui-avatars.com/api/?background=6c63ac&color=fff&rounded=true&size=80&bold=true&name=${response.data.firstName}+${response.data.lastName}&length=2`
+          };
+        } else {
+          this.setDefaultProfile();
+        }
+        this.isLoading = false;
+        this.tryStartTyping();
+      },
+      error: () => {
+        this.setDefaultProfile();
+        this.isLoading = false;
+        this.tryStartTyping();
+      }
+    });
+  }
 
-  this.targetElement.textContent = '';
-  this.currentIndex = 0;
-  const name = this.profile.firstName ?? this.profile.userName; // ← firstName
+  setDefaultProfile(): void {
+    this.profile = {
+      id: 'default',
+      firstName: 'Admin',
+      lastName: 'User',
+      userName: 'Admin User',
+      email: 'admin@smartcare.com',
+      role: 'Administrator',
+      avatar: 'https://ui-avatars.com/api/?background=6c63ac&color=fff&rounded=true&size=80&bold=true&name=Admin+User&length=2'
+    };
+  }
 
-  this.typingInterval = setInterval(() => {
-    if (this.currentIndex < name.length) {
-      this.targetElement.textContent += name.charAt(this.currentIndex);
-      this.currentIndex++;
-    } else {
-      clearInterval(this.typingInterval);
-      this.typingInterval = null;
-    }
-  }, 80);
+ private tryStartTyping(): void {
+  if (this.viewInitialized && this.profile && this.usernameSpan && !this.animationCompleted) {
+    setTimeout(() => {
+      this.targetElement = this.usernameSpan.nativeElement;
+      this.startTypewriterAnimation();
+      this.animationCompleted = true;
+    }, 500);
+  }
 }
 
-  ngOnDestroy() {
+  private targetElement!: HTMLSpanElement;
+
+  startTypewriterAnimation(): void {
+    if (!this.targetElement || !this.profile) return;
+    if (this.typingInterval) clearInterval(this.typingInterval);
+
+    this.targetElement.textContent = '';
+    this.currentIndex = 0;
+    const name = this.profile.firstName ?? this.profile.userName;
+
+    this.typingInterval = setInterval(() => {
+      if (this.currentIndex < name.length) {
+        this.targetElement.textContent += name.charAt(this.currentIndex);
+        this.currentIndex++;
+      } else {
+        clearInterval(this.typingInterval);
+        this.typingInterval = null;
+      }
+    }, 80);
+  }
+
+  ngOnDestroy(): void {
     if (this.typingInterval) clearInterval(this.typingInterval);
   }
 
