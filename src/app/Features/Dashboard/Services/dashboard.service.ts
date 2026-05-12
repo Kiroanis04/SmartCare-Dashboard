@@ -113,22 +113,34 @@ export class DashboardService {
   private initializeBranchData() {
     // Current Month Data
     const currentMonthData: BranchData[] = [
-      { name: 'Mansoura Store', revenue: 1250000, sales: 800000, orders: 300420, color: '#3b82f6' },
-      { name: 'Azbt El-NAKHEL Store', revenue: 980000, sales: 750000, orders: 200780, color: '#10b981' },
-      { name: 'Down Town Cairo Store', revenue: 750000, sales: 600000, orders: 210050, color: '#f59e0b' },
-      { name: 'Hurghada Store', revenue: 520000, sales: 420000, orders: 104500, color: '#8b5cf6' },
-      { name: 'Sohag Store', revenue: 380000, sales: 310000, orders: 100080, color: '#ec489a' },
-      { name: 'El- Damerdash Branch', revenue: 290000, sales: 230000, orders: 80090, color: '#06b6d4' },
+{ name: 'Nasr City Store', revenue: 450000, sales: 380000, orders: 120500, color: '#ef4444' },
+  { name: 'Alex Store Med Center', revenue: 410000, sales: 350000, orders: 110200, color: '#3b82f6' },
+  { name: 'Aswan Health Point', revenue: 180000, sales: 150000, orders: 45000, color: '#10b981' },
+  { name: 'Tanta Store', revenue: 310000, sales: 260000, orders: 88000, color: '#f59e0b' },
+  { name: 'Maadi Store', revenue: 395000, sales: 340000, orders: 105000, color: '#8b5cf6' },
+  { name: 'Giza Store', revenue: 370000, sales: 315000, orders: 98000, color: '#ec4899' },
+  { name: 'El- Damerdash Branch', revenue: 290000, sales: 230000, orders: 80090, color: '#06b6d4' },
+  { name: 'Sohag Store', revenue: 220000, sales: 190000, orders: 62000, color: '#6366f1' },
+  { name: 'Hurghada Store', revenue: 275000, sales: 220000, orders: 74000, color: '#14b8a6' },
+  { name: 'Down Town Cairo Store', revenue: 480000, sales: 410000, orders: 135000, color: '#f97316' },
+  { name: 'Azbt El-NAKHEL Store', revenue: 240000, sales: 205000, orders: 69000, color: '#84cc16' },
+  { name: 'Mansoura Store', revenue: 325000, sales: 280000, orders: 92000, color: '#06b6d4' }
     ];
 
     // Last Month Data
     const lastMonthData: BranchData[] = [
-      { name: 'Mansoura Store', revenue: 1180000, sales: 750000, orders: 300250, color: '#3b82f6' },
-      { name: 'Azbt El-NAKHEL Store', revenue: 920000, sales: 700000, orders: 200650, color: '#10b981' },
-      { name: 'Down Town Cairo Store', revenue: 710000, sales: 560000, orders: 200050, color: '#f59e0b' },
-      { name: 'Hurghada Store', revenue: 490000, sales: 390000, orders: 103080, color: '#8b5cf6' },
-      { name: 'Sohag Store', revenue: 360000, sales: 290000, orders: 100020, color: '#ec489a' },
-      { name: 'El- Damerdash Branch', revenue: 275000, sales: 220000, orders: 80050, color: '#06b6d4' }
+  { name: 'Nasr City Store', revenue: 495000, sales: 410000, orders: 115000, color: '#1e40af' },
+  { name: 'Alex Store Med Center', revenue: 430000, sales: 365000, orders: 98000, color: '#1d4ed8' },
+  { name: 'Aswan Health Point', revenue: 210000, sales: 175000, orders: 42000, color: '#3b82f6' },
+  { name: 'Tanta Store', revenue: 340000, sales: 290000, orders: 85000, color: '#60a5fa' },
+  { name: 'Maadi Store', revenue: 460000, sales: 395000, orders: 108000, color: '#93c5fd' },
+  { name: 'Giza Store', revenue: 385000, sales: 320000, orders: 94000, color: '#2563eb' },
+  { name: 'El- Damerdash Branch', revenue: 315000, sales: 255000, orders: 82000, color: '#0ea5e9' },
+  { name: 'Sohag Store', revenue: 245000, sales: 200000, orders: 65000, color: '#0284c7' },
+  { name: 'Hurghada Store', revenue: 290000, sales: 240000, orders: 71000, color: '#0369a1' },
+  { name: 'Down Town Cairo Store', revenue: 510000, sales: 435000, orders: 125000, color: '#075985' },
+  { name: 'Azbt El-NAKHEL Store', revenue: 265000, sales: 220000, orders: 74000, color: '#7dd3fc' },
+  { name: 'Mansoura Store', revenue: 355000, sales: 305000, orders: 90000, color: '#bae6fd' }
     ];
 
     this.branchDataCache.set('current', currentMonthData);

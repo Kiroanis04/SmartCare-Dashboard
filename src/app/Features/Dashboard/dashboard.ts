@@ -38,6 +38,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cardData = data;
       })
     );
+
+    setTimeout(() => {
+  window.scrollTo(0, 0);
+}, 500);
+  //   requestAnimationFrame(() => {
+  //   window.scrollTo(0, 0);
+  // });
     // Subscribe to admin profile
   //   this.subscriptions.push(
   //     this.dashboardService.getAdminProfile().subscribe((profile: AdminProfile) => {

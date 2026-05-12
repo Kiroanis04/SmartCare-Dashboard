@@ -26,7 +26,7 @@ export interface Pharmacist {
   branchName:     string;
   licenceNumber:  string;
   confirmed:      boolean;
-  confirming?:    boolean; // per-row loading state
+  confirming?:    boolean; 
 }
 
 @Component({
@@ -66,7 +66,6 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.loadNonConfirmedPharmacists();
@@ -80,8 +79,6 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  // ── Load ──────────────────────────────────────────────────────────────────
 
   loadNonConfirmedPharmacists(): void {
     this.isLoading    = true;
@@ -124,7 +121,6 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  // ── Confirm (tries PUT → GET fallback) ────────────────────────────────────
 
   confirm(pharmacist: Pharmacist): void {
     if (pharmacist.confirmed || pharmacist.confirming || !pharmacist.id) return;
@@ -133,7 +129,6 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
     pharmacist.confirming = true;
     this.cdr.detectChanges();
 
-    // Try PUT first; if server returns 405, fall back to GET
     this.http
       .put<any>(url, {}, { observe: 'response' })
       .pipe(
@@ -170,7 +165,7 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  // ── Filters ───────────────────────────────────────────────────────────────
+  // ── Filters ─────
 
   applyFilters(): void {
     const name   = this.searchName.toLowerCase().trim();
@@ -192,7 +187,6 @@ export class Notifications implements OnInit, AfterViewInit, OnDestroy {
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
-  // ── Dialog ────────────────────────────────────────────────────────────────
 
   closeDialog(): void {
     this.showDialog = false;
