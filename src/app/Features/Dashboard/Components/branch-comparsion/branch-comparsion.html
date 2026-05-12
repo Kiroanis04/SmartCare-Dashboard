@@ -92,14 +92,14 @@
   </div>
 
   <!-- Chart Wrapper with Horizontal Scroll -->
-  <div class="chart-wrapper" [class.horizontal-scroll]="isMobile">
-    <canvas #chartCanvas class="chart-canvas"></canvas>
-  </div>
+<div class="chart-wrapper"
+     [class.horizontal-scroll]="branchData.length > visibleBranchCount">
+  <canvas #chartCanvas class="chart-canvas"></canvas>
+</div>
 
-  <!-- Scroll Hint for Mobile -->
-  <div class="scroll-hint" *ngIf="isMobile && branchData.length > 0">
-    <span class="hint-text">👆 Swipe left/right to see more branches</span>
-  </div>
+<div class="scroll-hint" *ngIf="branchData.length > visibleBranchCount">
+  <span class="hint-text">👆 Swipe left/right to see more branches</span>
+</div>
 
   <!-- Legend -->
   <div class="chart-footer">

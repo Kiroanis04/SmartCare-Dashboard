@@ -285,7 +285,7 @@
 }
 
 .chart-wrapper.horizontal-scroll {
-  overflow-x: scroll;
+  overflow-x: auto;
   cursor: grab;
 }
 

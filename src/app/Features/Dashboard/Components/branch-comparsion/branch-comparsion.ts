@@ -21,7 +21,9 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
   branchData: BranchData[] = [];
   isLoading: boolean = false;
   private subscriptions: Subscription[] = [];
-
+  visibleBranchCount: number = 5;
+hoveredBarInfo: { x: number; y: number; branch: BranchData; visible: boolean } | null = null;
+private tooltipElement: HTMLDivElement | null = null;
   // Date Filter Properties
   showFilterPanel: boolean = false;
   dateRange: DateRange = {
@@ -71,21 +73,168 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
     this.checkScreenSize();
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      if (this.branchData.length > 0) {
-        this.drawChart();
-      }
-    }, 100);
-
-    // Listen for canvas container resize
-    if (this.chartCanvas && this.chartCanvas.nativeElement) {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.drawChart();
-      });
-      this.resizeObserver.observe(this.chartCanvas.nativeElement.parentElement!);
+ngAfterViewInit() {
+  setTimeout(() => {
+    if (this.branchData.length > 0) {
+      this.drawChart();
     }
+  }, 100);
+
+  this.createTooltip();
+
+  if (this.chartCanvas) {
+    const canvas = this.chartCanvas.nativeElement;
+
+    canvas.addEventListener('mousemove', (event: MouseEvent) => {
+      this.handleCanvasHover(event);
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      this.hideTooltip();
+    });
   }
+
+  if (this.chartCanvas && this.chartCanvas.nativeElement) {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.checkScreenSize();
+      this.drawChart();
+    });
+    this.resizeObserver.observe(this.chartCanvas.nativeElement.parentElement!);
+  }
+}
+
+createTooltip() {
+  this.tooltipElement = document.createElement('div');
+  this.tooltipElement.style.cssText = `
+    position: fixed;
+    background: rgba(15, 23, 42, 0.92);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: Inter, system-ui, sans-serif;
+    pointer-events: none;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    min-width: 160px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.15s ease;
+  `;
+  document.body.appendChild(this.tooltipElement);
+}
+
+handleCanvasHover(event: MouseEvent) {
+  if (!this.chartCanvas || this.branchData.length === 0) return;
+
+  const canvas = this.chartCanvas.nativeElement;
+  const rect = canvas.getBoundingClientRect();
+
+  const scaleX = canvas.width / (parseFloat(canvas.style.width) || canvas.width);
+  const mouseX = (event.clientX - rect.left) * scaleX / (window.devicePixelRatio || 1);
+  const mouseY = (event.clientY - rect.top) * scaleX / (window.devicePixelRatio || 1);
+
+  const width = this.canvasWidth;
+  const height = this.chartHeight;
+  const padding = this.getResponsivePadding(width);
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const barGroupWidth = (width - padding.left - padding.right) / this.branchData.length * 0.85;
+  const barSpacing = (width - padding.left - padding.right) / this.branchData.length;
+  const singleBarWidth = barGroupWidth / 3;
+  const barGap = 2;
+  const adjustedBarWidth = singleBarWidth - barGap;
+
+  const maxValue = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue);
+
+  let foundBar = false;
+
+  for (let i = 0; i < this.branchData.length; i++) {
+    const groupX = padding.left + (i * barSpacing) + (barSpacing - barGroupWidth) / 2;
+
+    const bars = [
+      {
+        x: groupX,
+        value: this.currentRevenueValues[i],
+        label: 'Revenue',
+        color: '#10b981',
+        format: (v: number) => v >= 1000000 ? `${(v/1000000).toFixed(2)}M EGP` : `${(v/1000).toFixed(1)}K EGP`
+      },
+      {
+        x: groupX + adjustedBarWidth,
+        value: this.currentSalesValues[i],
+        label: 'Sales',
+        color: '#f59e0b',
+        format: (v: number) => v >= 1000000 ? `${(v/1000000).toFixed(2)}M EGP` : `${(v/1000).toFixed(1)}K EGP`
+      },
+      {
+        x: groupX + adjustedBarWidth * 2,
+        value: this.currentOrdersValues[i],
+        label: 'Orders',
+        color: '#8b5cf6',
+        format: (v: number) => v.toLocaleString()
+      }
+    ];
+
+    for (const bar of bars) {
+      const barHeight = (bar.value / maxValue) * chartHeight;
+      const barTop = padding.top + chartHeight - barHeight;
+      const barBottom = padding.top + chartHeight;
+
+      if (
+        mouseX >= bar.x &&
+        mouseX <= bar.x + adjustedBarWidth &&
+        mouseY >= barTop &&
+        mouseY <= barBottom
+      ) {
+        this.showTooltip(event, this.branchData[i], bar);
+        foundBar = true;
+        break;
+      }
+    }
+    if (foundBar) break;
+  }
+
+  if (!foundBar) {
+    this.hideTooltip();
+  }
+}
+
+showTooltip(event: MouseEvent, branch: BranchData, bar: any) {
+  if (!this.tooltipElement) return;
+
+  this.tooltipElement.innerHTML = `
+    <div style="font-weight:700; margin-bottom:6px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">
+      🏢 ${branch.name}
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:${bar.color};display:inline-block;flex-shrink:0;"></span>
+      <span style="color:#94a3b8;">${bar.label}:</span>
+      <span style="font-weight:600; margin-left:auto;">${bar.format(bar.value)}</span>
+    </div>
+  `;
+
+  const tooltipWidth = 190;
+  let left = event.clientX + 14;
+  let top = event.clientY - 20;
+
+  if (left + tooltipWidth > window.innerWidth) {
+    left = event.clientX - tooltipWidth - 14;
+  }
+
+  this.tooltipElement.style.left = `${left}px`;
+  this.tooltipElement.style.top = `${top}px`;
+  this.tooltipElement.style.display = 'block';
+}
+
+hideTooltip() {
+  if (this.tooltipElement) {
+    this.tooltipElement.style.display = 'none';
+  }
+}
+
+
 
   @HostListener('window:resize')
   onResize() {
@@ -93,24 +242,32 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
     this.drawChart();
   }
 
-  checkScreenSize() {
-    const width = window.innerWidth;
-    this.isMobile = width < 768;
-    this.isTablet = width >= 768 && width < 1024;
+checkScreenSize() {
+  const width = window.innerWidth;
+  this.isMobile = width < 768;
+  this.isTablet = width >= 768 && width < 1024;
 
-    // Adjust chart dimensions based on screen size
-    if (this.isMobile) {
-      this.chartHeight = 400;
-      // Set fixed width for horizontal scroll on mobile (200px per branch)
-      this.canvasWidth = Math.max(this.branchData.length * 220, width - 40);
-    } else if (this.isTablet) {
-      this.chartHeight = 400;
-      this.canvasWidth = 800;
-    } else {
-      this.chartHeight = 450;
-      this.canvasWidth = 1000;
-    }
+  if (this.isMobile) {
+    this.chartHeight = 400;
+    this.visibleBranchCount = 3;
+    const minWidth = Math.max(this.branchData.length * 220, width - 40);
+    this.canvasWidth = this.branchData.length > 3 ? minWidth : width - 40;
+  } else if (this.isTablet) {
+    this.chartHeight = 400;
+    this.visibleBranchCount = 3;
+    const containerWidth = this.chartCanvas?.nativeElement?.parentElement?.offsetWidth || 800;
+    this.canvasWidth = this.branchData.length > 3
+      ? Math.max(this.branchData.length * 200, containerWidth)
+      : containerWidth;
+  } else {
+    this.chartHeight = 450;
+    this.visibleBranchCount = 5;
+    const containerWidth = this.chartCanvas?.nativeElement?.parentElement?.offsetWidth || 1000;
+    this.canvasWidth = this.branchData.length > 5
+      ? Math.max(this.branchData.length * 180, containerWidth)
+      : containerWidth;
   }
+}
 
   loadBranchData() {
    // this.isLoading = true;
@@ -128,6 +285,7 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
       })
     );
   }
+
 
   updateChartData() {
     if (this.branchData.length === 0) return;
@@ -361,7 +519,6 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
         ctx.fillText(salesText, salesX + (adjustedBarWidth - salesTextWidth) / 2, padding.top + chartHeight - salesHeight - 3);
       }
 
-      // Orders label
       if (this.currentOrdersValues[i] > 0 && ordersHeight > 15) {
         const ordersText = Math.round(this.currentOrdersValues[i]).toLocaleString();
         const ordersTextWidth = ctx.measureText(ordersText).width;
@@ -385,7 +542,6 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
       const y = height - padding.bottom + 20;
       const label = this.branchData[i].name;
 
-      // Wrap long labels
       if (label.length > 12) {
         const wrappedLabel = label.substring(0, 10) + '...';
         ctx.fillStyle = '#475569';
@@ -399,13 +555,16 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
     ctx.restore();
   }
 
-  ngOnDestroy() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
+ngOnDestroy() {
+  if (this.animationFrameId) {
+    cancelAnimationFrame(this.animationFrameId);
   }
+  this.subscriptions.forEach(sub => sub.unsubscribe());
+  if (this.resizeObserver) {
+    this.resizeObserver.disconnect();
+  }
+  if (this.tooltipElement && this.tooltipElement.parentNode) {
+    this.tooltipElement.parentNode.removeChild(this.tooltipElement);
+  }
+}
 }
