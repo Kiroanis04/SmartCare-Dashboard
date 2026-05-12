@@ -413,6 +413,7 @@ export class OrderDetailsDialog {
 export class OrdersComponent implements AfterViewInit {
   displayedColumns: string[] = ['position', 'ClientName', 'price', 'Orderstatus', 'BranchName', 'OrderType', 'date'];
   dataSource = new MatTableDataSource<Orders>([]);
+  allOrders: Orders[] = [];
 
   // Filter properties
   searchClientName = '';
@@ -573,7 +574,7 @@ export class OrdersComponent implements AfterViewInit {
         price: 55.00,
         BranchName: 'Sohag Store',
         OrderType: 'Pickup',
-        Orderstatus: 'Delivered',
+        Orderstatus: 'Completed',
         date: new Date(2024, 0, 23),
         orderId: 'ORD-009',
         totalItems: 1,
@@ -628,10 +629,317 @@ export class OrdersComponent implements AfterViewInit {
         items: [
           { productName: 'First Aid Kit', quantity: 1, price: 200.00, total: 200.00 }
         ]
-      }
+      },
+      {
+    position: 13,
+    ClientName: 'Ahmed Hassan',
+    price: 310.00,
+    BranchName: 'Nasr City Store',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 0, 27),
+    orderId: 'ORD-013',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Nebulizer Machine', quantity: 1, price: 280.00, total: 280.00 },
+      { productName: 'Saline Solution', quantity: 2, price: 15.00, total: 30.00 }
+    ]
+  },
+  {
+    position: 14,
+    ClientName: 'Mona Zaki',
+    price: 65.50,
+    BranchName: 'Tanta Store',
+    OrderType: 'Pickup',
+    Orderstatus: 'Cancelled',
+    date: new Date(2024, 0, 28),
+    orderId: 'ORD-014',
+    totalItems: 2,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Hand Sanitizer 500ml', quantity: 1, price: 45.00, total: 45.00 },
+      { productName: 'Face Mask Single', quantity: 5, price: 4.10, total: 20.50 }
+    ]
+  },
+  {
+    position: 15,
+    ClientName: 'Omar Sherif',
+    price: 1200.00,
+    BranchName: 'Maadi Store',
+    OrderType: 'Online',
+    Orderstatus: 'Shipped',
+    date: new Date(2024, 0, 29),
+    orderId: 'ORD-015',
+    totalItems: 1,
+    paymentMethod: 'Bank Transfer',
+    items: [
+      { productName: 'Electric Wheelchair Battery', quantity: 1, price: 1200.00, total: 1200.00 }
+    ]
+  },
+  {
+    position: 16,
+    ClientName: 'Laila Mourad',
+    price: 240.00,
+    BranchName: 'Alex Store Med Center',
+    OrderType: 'Online',
+    Orderstatus: 'Pending',
+    date: new Date(2024, 0, 30),
+    orderId: 'ORD-016',
+    totalItems: 3,
+    paymentMethod: 'PayPal',
+    items: [
+      { productName: 'Collagen Powder', quantity: 1, price: 180.00, total: 180.00 },
+      { productName: 'Vitamin D3', quantity: 2, price: 30.00, total: 60.00 }
+    ]
+  },
+  {
+    position: 17,
+    ClientName: 'Khaled El Sawy',
+    price: 55.00,
+    BranchName: 'Aswan Health Point',
+    OrderType: 'Pickup',
+    Orderstatus: 'WaitingForPickup',
+    date: new Date(2024, 1, 1),
+    orderId: 'ORD-017',
+    totalItems: 1,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Sunblock Cream SPF50', quantity: 1, price: 55.00, total: 55.00 }
+    ]
+  },
+  {
+    position: 18,
+    ClientName: 'Yasmine Sabri',
+    price: 430.00,
+    BranchName: 'Giza Store',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 1, 2),
+    orderId: 'ORD-018',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Skin Serum Set', quantity: 1, price: 350.00, total: 350.00 },
+      { productName: 'Moisturizer', quantity: 1, price: 80.00, total: 80.00 }
+    ]
+  },
+  {
+    position: 19,
+    ClientName: 'Tarek Lotfy',
+    price: 110.00,
+    BranchName: 'Sohag Store',
+    OrderType: 'Online',
+    Orderstatus: 'Returned',
+    date: new Date(2024, 1, 3),
+    orderId: 'ORD-019',
+    totalItems: 2,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Back Support Belt', quantity: 1, price: 110.00, total: 110.00 }
+    ]
+  },
+  {
+    position: 20,
+    ClientName: 'Hoda Hany',
+    price: 85.00,
+    BranchName: 'El- Damerdash Branch',
+    OrderType: 'Online',
+    Orderstatus: 'Shipped',
+    date: new Date(2024, 1, 4),
+    orderId: 'ORD-020',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Iron Supplements', quantity: 2, price: 42.50, total: 85.00 }
+    ]
+  },
+  {
+    position: 21,
+    ClientName: 'Mostafa Amar',
+    price: 670.00,
+    BranchName: 'Down Town Cairo Store',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 1, 5),
+    orderId: 'ORD-021',
+    totalItems: 1,
+    paymentMethod: 'Bank Transfer',
+    items: [
+      { productName: 'Orthopedic Mattress Pad', quantity: 1, price: 670.00, total: 670.00 }
+    ]
+  },
+  {
+    position: 22,
+    ClientName: 'Nour Ali',
+    price: 45.00,
+    BranchName: 'Mansoura Store',
+    OrderType: 'Pickup',
+    Orderstatus: 'WaitingForPickup',
+    date: new Date(2024, 1, 6),
+    orderId: 'ORD-022',
+    totalItems: 3,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Antacid Tablets', quantity: 3, price: 15.00, total: 45.00 }
+    ]
+  },
+  {
+    position: 23,
+    ClientName: 'Karim Abdel Aziz',
+    price: 195.00,
+    BranchName: 'Hurghada Store',
+    OrderType: 'Online',
+    Orderstatus: 'Processing',
+    date: new Date(2024, 1, 7),
+    orderId: 'ORD-023',
+    totalItems: 2,
+    paymentMethod: 'PayPal',
+    items: [
+      { productName: 'Digital Pulse Oximeter', quantity: 1, price: 195.00, total: 195.00 }
+    ]
+  },
+  {
+    position: 24,
+    ClientName: 'Samiha Ayoub',
+    price: 32.00,
+    BranchName: 'Azbt El-NAKHEL Store',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 1, 8),
+    orderId: 'ORD-024',
+    totalItems: 4,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Aspirin', quantity: 4, price: 8.00, total: 32.00 }
+    ]
+  },
+  {
+    position: 25,
+    ClientName: 'Hany Ramzy',
+    price: 150.00,
+    BranchName: 'Nasr City Store',
+    OrderType: 'Online',
+    Orderstatus: 'Shipped',
+    date: new Date(2024, 1, 9),
+    orderId: 'ORD-025',
+    totalItems: 1,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Hearing Aid Batteries', quantity: 5, price: 30.00, total: 150.00 }
+    ]
+  },
+  {
+    position: 26,
+    ClientName: 'Dina El Sherbiny',
+    price: 520.00,
+    BranchName: 'Maadi Store',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 1, 10),
+    orderId: 'ORD-026',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Electric Toothbrush', quantity: 1, price: 450.00, total: 450.00 },
+      { productName: 'Replacement Heads', quantity: 1, price: 70.00, total: 70.00 }
+    ]
+  },
+  {
+    position: 27,
+    ClientName: 'Mohamed Ramadan',
+    price: 88.00,
+    BranchName: 'Giza Store',
+    OrderType: 'Pickup',
+    Orderstatus: 'Pending',
+    date: new Date(2024, 1, 11),
+    orderId: 'ORD-027',
+    totalItems: 2,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Protein Bar', quantity: 4, price: 22.00, total: 88.00 }
+    ]
+  },
+  {
+    position: 28,
+    ClientName: 'Farida Seif',
+    price: 140.00,
+    BranchName: 'Tanta Store',
+    OrderType: 'Online',
+    Orderstatus: 'Cancelled',
+    date: new Date(2024, 1, 12),
+    orderId: 'ORD-028',
+    totalItems: 1,
+    paymentMethod: 'PayPal',
+    items: [
+      { productName: 'Inhaler', quantity: 1, price: 140.00, total: 140.00 }
+    ]
+  },
+  {
+    position: 29,
+    ClientName: 'Sherif Amer',
+    price: 215.00,
+    BranchName: 'Alex Store Med Center',
+    OrderType: 'Online',
+    Orderstatus: 'Shipped',
+    date: new Date(2024, 1, 13),
+    orderId: 'ORD-029',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Knee Brace', quantity: 1, price: 175.00, total: 175.00 },
+      { productName: 'Elastic Bandage', quantity: 2, price: 20.00, total: 40.00 }
+    ]
+  },
+  {
+    position: 30,
+    ClientName: 'Magdy Yacoub',
+    price: 950.00,
+    BranchName: 'Aswan Health Point',
+    OrderType: 'Online',
+    Orderstatus: 'Delivered',
+    date: new Date(2024, 1, 14),
+    orderId: 'ORD-030',
+    totalItems: 1,
+    paymentMethod: 'Bank Transfer',
+    items: [
+      { productName: 'Stethoscope Pro', quantity: 1, price: 950.00, total: 950.00 }
+    ]
+  },
+  {
+    position: 31,
+    ClientName: 'Hend Sabry',
+    price: 45.00,
+    BranchName: 'Hurghada Store',
+    OrderType: 'Pickup',
+    Orderstatus: 'WaitingForPickup',
+    date: new Date(2024, 1, 15),
+    orderId: 'ORD-031',
+    totalItems: 1,
+    paymentMethod: 'Cash',
+    items: [
+      { productName: 'Lip Balm Medicated', quantity: 1, price: 45.00, total: 45.00 }
+    ]
+  },
+  {
+    position: 32,
+    ClientName: 'Wael Jassar',
+    price: 330.00,
+    BranchName: 'Sohag Store',
+    OrderType: 'Online',
+    Orderstatus: 'Processing',
+    date: new Date(2024, 1, 16),
+    orderId: 'ORD-032',
+    totalItems: 2,
+    paymentMethod: 'Credit Card',
+    items: [
+      { productName: 'Multi-Vitamin 100pk', quantity: 2, price: 165.00, total: 330.00 }
+    ]
+  }
     ];
 
-    this.dataSource.data = ordersData;
+     this.allOrders = ordersData;
+     this.dataSource.data = this.allOrders.map((p, i) => ({ ...p, position: i + 1 }));
 
     // Extract filter options
     this.OrderType = [...new Set(ordersData.map(p => p.OrderType))];
@@ -640,7 +948,7 @@ export class OrdersComponent implements AfterViewInit {
   }
 
   applyFilters() {
-    const filtered = this.dataSource.data.filter(p => {
+    const filtered = this.allOrders.filter(p => {
       const matchSearch = !this.searchClientName ||
         p.ClientName.toLowerCase().includes(this.searchClientName.toLowerCase());
       const matchOrderType = !this.selectedOrderType || p.OrderType === this.selectedOrderType;
@@ -672,7 +980,8 @@ export class OrdersComponent implements AfterViewInit {
     this.selectedOrderType = '';
     this.startDate = null;
     this.endDate = null;
-    this.loadOrdersData();
+    //this.loadOrdersData();
+    this.dataSource.data = this.allOrders.map((p, i) => ({ ...p, position: i + 1 }));
     if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 

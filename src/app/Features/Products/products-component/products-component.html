@@ -180,12 +180,17 @@
             }
 
             <!-- No Branches Message -->
-            @if (element.branches.length === 0) {
-              <div class="no-branches">
-                <mat-icon>info_outline</mat-icon>
-                <span>No branch inventory information available</span>
-              </div>
-            }
+            @if (element.loadingBranches) {
+  <div class="loading-branches">
+    <mat-icon>hourglass_empty</mat-icon>
+    <span>Loading branches...</span>
+  </div>
+} @else if (element.branches.length === 0) {
+  <div class="no-branches">
+    <mat-icon>info_outline</mat-icon>
+    <span>No branch inventory information available</span>
+  </div>
+}
 
             <!-- Total Stock Summary -->
             @if (element.branches.length > 0) {

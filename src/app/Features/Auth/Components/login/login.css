@@ -350,7 +350,6 @@ body, html {
     gap: 8px;
   }
 
-  /* hide decorative frames on mobile */
   .glass-bg-1,
   .glass-bg-2 {
     display: none;

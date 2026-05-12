@@ -36,6 +36,7 @@ export interface Product {
   description?: string;
   discountPercentage?: number;
   isAvailable?: boolean;
+  loadingBranches?: boolean;
 }
 
 // API Response Interfaces
@@ -217,42 +218,66 @@ export class ProductsComponent implements AfterViewInit {
   }
 
   loadBranchesForProduct(product: Product) {
-    if (!product.productId) return;
+  if (!product.productId) return;
 
-    if (this.branchCache.has(product.productId)) {
-      product.branches = this.branchCache.get(product.productId)!;
-      this.dataSource.data = [...this.dataSource.data];
-      return;
-    }
+  // 1. تحقق من الكاش أولاً
+  if (this.branchCache.has(product.productId)) {
+    product.branches = this.branchCache.get(product.productId)!;
+    this.dataSource.data = [...this.dataSource.data];
+    return;
+  }
 
-    this.http.get<InventoryApiResponse>(
-      `${this.baseUrl}/api/Inventories/GetAvailableInventory?productId=${product.productId}`
-    ).subscribe({
-      next: (response) => {
-        if (response.succeeded && response.data) {
-          product.branches = response.data.map((inv: InventoryItem) => ({
-            branchName: inv.storeName,
-            location: inv.address,
-            availableStock: inv.availableQuantity,
-            address: inv.address,
-            phone: inv.phone,
-            inventoryId: inv.inventoryId,
-            storeId: inv.storeId
-          }));
+  // 2. إظهار حالة التحميل
+  product.loadingBranches = true;
+  this.dataSource.data = [...this.dataSource.data];
 
-          this.branchCache.set(product.productId!, product.branches);
-        } else {
-          product.branches = [];
-        }
+  // 3. استدعاء API
+  this.http.get<InventoryApiResponse>(
+    `${this.baseUrl}/api/Inventories/GetAvailableInventory?productId=${product.productId}`
+  ).subscribe({
+    next: (response) => {
+      product.loadingBranches = false;
+
+      let branches: Branch[] = [];
+      if (response.succeeded && response.data) {
+        branches = response.data.map((inv: InventoryItem) => ({
+          branchName: inv.storeName,
+          location: inv.address,
+          availableStock: inv.availableQuantity,
+          address: inv.address,
+          phone: inv.phone,
+          inventoryId: inv.inventoryId,
+          storeId: inv.storeId
+        }));
+        this.branchCache.set(product.productId!, branches);
+      }
+
+      // ✅ **التغيير السحري**: تحديث المنتج في مصفوفة dataSource وإعادة فتح الصف
+      const originalIndex = this.dataSource.data.findIndex(p => p.productId === product.productId);
+      if (originalIndex !== -1) {
+        // تحديث الفروع في الكائن الأصلي
+        this.dataSource.data[originalIndex].branches = branches;
+        // إغلاق ثم فتح الصف مرة أخرى فوراً لإعادة الرسم
+        this.expandedProduct = null;
         this.dataSource.data = [...this.dataSource.data];
-      },
-      error: (err) => {
-        console.error('Failed to load branches', err);
-        product.branches = [];
+        setTimeout(() => {
+          this.expandedProduct = this.dataSource.data[originalIndex];
+          this.dataSource.data = [...this.dataSource.data];
+        }, 20);
+      } else {
+        product.branches = branches;
         this.dataSource.data = [...this.dataSource.data];
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('Failed to load branches', err);
+      product.loadingBranches = false;
+      const idx = this.dataSource.data.findIndex(p => p.productId === product.productId);
+      if (idx !== -1) this.dataSource.data[idx].branches = [];
+      this.dataSource.data = [...this.dataSource.data];
+    }
+  });
+}
 
   applyFilters() {
     let filtered = [...this.allProducts];
