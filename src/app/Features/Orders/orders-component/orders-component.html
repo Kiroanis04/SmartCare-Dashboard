@@ -96,7 +96,7 @@
 
         <ng-container matColumnDef="ClientName">
           <th mat-header-cell *matHeaderCellDef> Client Name </th>
-          <td mat-cell *matCellDef="let element" class="client-name-cell" (click)="viewOrderDetails(element)">
+          <td mat-cell *matCellDef="let element" class="client-name-cell" (click)="viewOrderDetails(element); $event.stopPropagation()">
             {{ element.ClientName }}
             <mat-icon class="view-icon">visibility</mat-icon>
           </td>

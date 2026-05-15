@@ -377,6 +377,9 @@ export class OrderDetailsDialog {
             <div class="total">
               <h3>Grand Total: EGP ${this.data.price.toFixed(2)}</h3>
             </div>
+            <script>
+            window.onafterprint = function() { window.close(); };
+          </script>
           </body>
         </html>
       `);
