@@ -435,10 +435,11 @@ export class ProductsComponent implements AfterViewInit {
           this.snackBar.open('❌ ' + (res.message || 'Create failed'), 'Close', { duration: 4000 });
         }
       },
-      error: () => {
-        this.isCreating = false;
-        this.snackBar.open('❌ Server error during create', 'Close', { duration: 4000 });
-      }
+      error: (err) => {
+  this.isCreating = false;
+  const apiMessage = err?.error?.message || err?.message || 'Server error during create';
+  this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
+}
     });
   }
 
@@ -507,17 +508,10 @@ submitUpdate() {
       }
     },
     error: (err) => {
-      this.isUpdating = false;
-      // Try to extract meaningful error message
-      let errorMessage = '❌ Server error during update';
-      if (err.error?.message) {
-        errorMessage = err.error.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      this.snackBar.open(errorMessage, 'Close', { duration: 4000 });
-      console.error('Update error:', err);
-    }
+  this.isUpdating = false;
+  const apiMessage = err?.error?.message || err?.message || 'Server error during update';
+  this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
+}
   });
 }
 
@@ -528,26 +522,31 @@ submitUpdate() {
     this.dialog.open(this.deleteDialog, { width: '420px', disableClose: true });
   }
 
-  confirmDelete() {
-    if (!this.productToDelete?.productId) return;
-    this.isDeleting = true;
-    this.http.delete<any>(`${this.baseUrl}/api/admin/Products/${this.productToDelete.productId}/delete`).subscribe({
-      next: (res) => {
-        this.isDeleting = false;
-        if (res.succeeded) {
-          this.snackBar.open('🗑️ Product deleted successfully', 'Close', { duration: 3000 });
-          this.dialog.closeAll();
-          this.loadProducts();
-        } else {
-          this.snackBar.open('❌ ' + (res.message || 'Delete failed'), 'Close', { duration: 4000 });
-        }
-      },
-      error: () => {
-        this.isDeleting = false;
-        this.snackBar.open('❌ Server error during delete', 'Close', { duration: 4000 });
+confirmDelete() {
+  if (!this.productToDelete?.productId) return;
+  this.isDeleting = true;
+
+  this.http.delete<any>(`${this.baseUrl}/api/admin/Products/${this.productToDelete.productId}/delete`).subscribe({
+    next: (res) => {
+      this.isDeleting = false;
+      if (res.succeeded) {
+        this.snackBar.open('🗑️ Product deleted successfully', 'Close', { duration: 3000 });
+        this.dialog.closeAll();
+        this.loadProducts();
+      } else {
+        this.snackBar.open('❌ ' + (res.message || 'Delete failed'), 'Close', { duration: 4000 });
+        this.dialog.closeAll();
       }
-    });
-  }
+    },
+    error: (err) => {
+      this.isDeleting = false;
+      // ✅ Extract message from the API error response body
+      const apiMessage = err?.error?.message || err?.message || 'Server error during delete';
+      this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
+      this.dialog.closeAll();
+    }
+  });
+}
 
   // ── Branches ──────────────────────────────────────────────
   loadBranchesForProduct(product: Product) {
