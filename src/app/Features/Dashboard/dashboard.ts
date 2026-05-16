@@ -15,7 +15,7 @@ import { LottieComponent } from 'ngx-lottie';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Adminprofile, CardsComponent, BarChartComponent, DonutChartComponent, CompanyPerformanceChartComponent, LowStockTableComponent, LottieComponent],
+  imports: [CommonModule, Adminprofile, CardsComponent, BarChartComponent, DonutChartComponent, CompanyPerformanceChartComponent, LowStockTableComponent],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
