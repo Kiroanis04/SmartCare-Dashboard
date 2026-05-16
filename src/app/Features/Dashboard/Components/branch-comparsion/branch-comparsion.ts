@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { DashboardService } from '../../Services/dashboard.service';
 import { BranchData, DateRange } from '../../Models/dashboard.model';
-
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
@@ -19,9 +19,11 @@ export class BarChartComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Data Properties
   branchData: BranchData[] = [];
-  isLoading: boolean = false;
+  //isLoading: boolean = false;
   private subscriptions: Subscription[] = [];
   visibleBranchCount: number = 5;
+  private loadTrigger$ = new Subject<{ start: Date; end: Date }>();
+private loadSubscription!: Subscription;
 hoveredBarInfo: { x: number; y: number; branch: BranchData; visible: boolean } | null = null;
 private tooltipElement: HTMLDivElement | null = null;
   // Date Filter Properties
@@ -66,12 +68,58 @@ private tooltipElement: HTMLDivElement | null = null;
 
   private resizeObserver: ResizeObserver | null = null;
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService,
+  private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.loadBranchData();
-    this.checkScreenSize();
-  }
+  this.checkScreenSize();
+
+  // ✅ Single subscription using switchMap — cancels previous request automatically
+  this.loadSubscription = this.loadTrigger$.pipe(
+    switchMap(({ start, end }) =>
+      this.dashboardService.getStores(start, end)
+    )
+  ).subscribe({
+    next: (response) => {
+      if (response.succeeded && response.data) {
+        this.branchData = response.data.map((store, index) => ({
+          name: store.branchName,
+          revenue: store.revenue,
+          sales: store.onlineOrders,
+          orders: store.totalOrders,
+          pickupOrders: store.pickupOrders,
+          percentageOfRevenue: store.percentageOfRevenue,
+          color: this.getBranchColor(index)
+        }));
+      } else {
+        this.branchData = [];
+      }
+
+      this.updateChartData();
+      this.calculateSummary();
+      this.checkScreenSize();
+      this.cdr.detectChanges(); // ✅ force Angular to re-render cards
+      setTimeout(() => {
+        this.drawChart();
+        this.cdr.detectChanges();
+      }, 100);
+    },
+    error: (err) => {
+      console.error('Failed to load store data', err);
+      this.branchData = [];
+      this.summary = {
+        totalRevenue: 0,
+        totalSales: 0,
+        totalOrders: 0,
+        averageRevenue: 0,
+        topBranch: null
+      };
+      this.cdr.detectChanges();
+    }
+  });
+
+  this.loadBranchData();
+}
 
 ngAfterViewInit() {
   setTimeout(() => {
@@ -270,35 +318,22 @@ checkScreenSize() {
 }
 
 loadBranchData() {
-  this.isLoading = true;
+  // ✅ Reset summary immediately — cards show 0 while request is in-flight
+  this.summary = {
+    totalRevenue: 0,
+    totalSales: 0,
+    totalOrders: 0,
+    averageRevenue: 0,
+    topBranch: null
+  };
+  this.branchData = [];
+  this.cdr.detectChanges();
 
-  this.subscriptions.push(
-    this.dashboardService.getStores().subscribe({
-      next: (response) => {
-        if (response.succeeded && response.data) {
-          // Map API response to chart-friendly format
-          this.branchData = response.data.map((store, index) => ({
-            name: store.branchName,
-            revenue: store.revenue,
-            sales: store.onlineOrders,   // repurposed field
-            orders: store.totalOrders,
-            pickupOrders: store.pickupOrders,
-            percentageOfRevenue: store.percentageOfRevenue,
-            color: this.getBranchColor(index)
-          }));
-        }
-        this.isLoading = false;
-        this.updateChartData();
-        this.calculateSummary();
-        this.checkScreenSize();
-        setTimeout(() => this.drawChart(), 100);
-      },
-      error: (err) => {
-        console.error('Failed to load store data', err);
-        this.isLoading = false;
-      }
-    })
-  );
+  // ✅ Push new dates into the stream — switchMap cancels any pending request
+  this.loadTrigger$.next({
+    start: this.dateRange.startDate,
+    end: this.dateRange.endDate
+  });
 }
 
 private getBranchColor(index: number): string {
@@ -334,31 +369,35 @@ updateChartData() {
 }
 
   calculateSummary() {
-    if (!this.branchData.length) {
-      this.summary = {
-        totalRevenue: 0,
-        totalSales: 0,
-        totalOrders: 0,
-        averageRevenue: 0,
-        topBranch: null
-      };
-      return;
-    }
-
-    const totalRevenue = this.branchData.reduce((sum, b) => sum + b.revenue, 0);
-    const totalSales = this.branchData.reduce((sum, b) => sum + b.sales, 0);
-    const totalOrders = this.branchData.reduce((sum, b) => sum + b.orders, 0);
-    const averageRevenue = totalRevenue / this.branchData.length;
-    const topBranch = [...this.branchData].sort((a, b) => b.revenue - a.revenue)[0];
-
+  if (!this.branchData.length) {
     this.summary = {
-      totalRevenue,
-      totalSales,
-      totalOrders,
-      averageRevenue,
-      topBranch
+      totalRevenue: 0,
+      totalSales: 0,
+      totalOrders: 0,
+      averageRevenue: 0,
+      topBranch: null
     };
+    return;
   }
+
+  const totalRevenue   = this.branchData.reduce((sum, b) => sum + b.revenue, 0);
+  const totalSales     = this.branchData.reduce((sum, b) => sum + b.sales,   0);
+  const totalOrders    = this.branchData.reduce((sum, b) => sum + b.orders,  0);
+  const averageRevenue = totalRevenue / this.branchData.length;
+
+  // Sort descending by revenue — pick first branch with revenue > 0, else null
+  const sorted   = [...this.branchData].sort((a, b) => b.revenue - a.revenue);
+  const topBranch = sorted[0]?.revenue > 0 ? sorted[0] : null;
+
+  // Spread into a NEW object so Angular change detection fires
+  this.summary = {
+    totalRevenue,
+    totalSales,
+    totalOrders,
+    averageRevenue,
+    topBranch
+  };
+}
 
   onStartDateChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -376,26 +415,26 @@ updateChartData() {
     }
   }
 
-  applyDateFilter() {
-    this.dateRange = {
-      startDate: new Date(this.tempDateRange.startDate),
-      endDate: new Date(this.tempDateRange.endDate)
-    };
-    this.showFilterPanel = false;
-    //this.loadBranchData();
-  }
+applyDateFilter() {
+  this.dateRange = {
+    startDate: new Date(this.tempDateRange.startDate),
+    endDate: new Date(this.tempDateRange.endDate)
+  };
+  this.showFilterPanel = false;
+  this.loadBranchData();
+}
 
-  resetDateFilter() {
-    this.tempDateRange = {
-      startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-      endDate: new Date()
-    };
-    this.dateRange = {
-      startDate: new Date(this.tempDateRange.startDate),
-      endDate: new Date(this.tempDateRange.endDate)
-    };
-    //this.loadBranchData();
-  }
+resetDateFilter() {
+  this.tempDateRange = {
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    endDate: new Date()
+  };
+  this.dateRange = {
+    startDate: new Date(this.tempDateRange.startDate),
+    endDate: new Date(this.tempDateRange.endDate)
+  };
+  this.loadBranchData();
+}
 
 drawChart() {
   if (!this.chartCanvas || this.branchData.length === 0) return;
@@ -626,6 +665,8 @@ ngOnDestroy() {
     cancelAnimationFrame(this.animationFrameId);
   }
   this.subscriptions.forEach(sub => sub.unsubscribe());
+  this.loadSubscription?.unsubscribe();
+  this.loadTrigger$.complete();
   if (this.resizeObserver) {
     this.resizeObserver.disconnect();
   }

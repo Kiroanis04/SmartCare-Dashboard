@@ -1,9 +1,9 @@
 <div class="bar-chart-container">
   <!-- Loading Overlay -->
-  <div class="loading-overlay" *ngIf="isLoading">
+  <!--<div class="loading-overlay" *ngIf="isLoading">
     <div class="spinner"></div>
     <div class="loading-text">Loading branch data...</div>
-  </div>
+  </div>-->
 
   <!-- Chart Header -->
   <div class="chart-header">
@@ -23,73 +23,92 @@
     </div>
   </div>
 
-  <!-- Filter Panel -->
-  <div class="filter-panel" [class.expanded]="showFilterPanel">
-    <div class="filter-content">
-      <div class="filter-row">
-        <div class="filter-group">
-          <label>Start Date</label>
-          <input
-            type="date"
-            [value]="tempDateRange.startDate | date:'yyyy-MM-dd'"
-            (change)="onStartDateChange($event)"
-            class="date-input">
-        </div>
+<!-- Filter Panel -->
+<div class="filter-panel" [class.expanded]="showFilterPanel">
+  <div class="filter-content">
+    <div class="filter-row">
 
-        <div class="filter-group">
-          <label>End Date</label>
-          <input
-            type="date"
-            [value]="tempDateRange.endDate | date:'yyyy-MM-dd'"
-            (change)="onEndDateChange($event)"
-            class="date-input">
-        </div>
-
-        <div class="filter-actions">
-          <button class="apply-btn" (click)="applyDateFilter()">Apply Filter</button>
-          <button class="reset-btn" (click)="resetDateFilter()">Reset</button>
-        </div>
+      <div class="filter-group">
+        <label>Start Date & Time</label>
+        <input
+          type="datetime-local"
+          [value]="tempDateRange.startDate | date:'yyyy-MM-ddTHH:mm'"
+          (change)="onStartDateChange($event)"
+          class="date-input">
       </div>
 
-      <div class="filter-info">
-        <span class="info-badge">
-          📅 Showing data from {{ dateRange.startDate | date:'MMM d, yyyy' }} to {{ dateRange.endDate | date:'MMM d, yyyy' }}
-        </span>
+      <div class="filter-group">
+        <label>End Date & Time</label>
+        <input
+          type="datetime-local"
+          [value]="tempDateRange.endDate | date:'yyyy-MM-ddTHH:mm'"
+          (change)="onEndDateChange($event)"
+          class="date-input">
       </div>
+
+      <div class="filter-actions">
+        <button class="apply-btn" (click)="applyDateFilter()">Apply Filter</button>
+        <button class="reset-btn" (click)="resetDateFilter()">Reset</button>
+      </div>
+
+    </div>
+
+    <div class="filter-info">
+      <span class="info-badge">
+        📅 Showing data from {{ dateRange.startDate | date:'MMM d, yyyy HH:mm' }}
+        to {{ dateRange.endDate | date:'MMM d, yyyy HH:mm' }}
+      </span>
     </div>
   </div>
+</div>
 
   <!-- Summary Cards -->
   <div class="summary-cards">
-    <div class="summary-card">
-      <div class="summary-icon">💰</div>
-      <div class="summary-info">
-        <span class="summary-label">Total Revenue</span>
-        <span class="summary-value">{{ summary.totalRevenue | number:'1.2-2' }} EGP</span>
-      </div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-icon">🛒</div>
-      <div class="summary-info">
-        <span class="summary-label">Online Orders</span>
-        <span class="summary-value">{{ summary.totalSales | number }}</span>
-      </div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-icon">📦</div>
-      <div class="summary-info">
-        <span class="summary-label">Total Orders</span>
-        <span class="summary-value">{{ summary.totalOrders | number }}</span>
-      </div>
-    </div>
-    <div class="summary-card" *ngIf="summary.topBranch">
-      <div class="summary-icon">🏆</div>
-      <div class="summary-info">
-        <span class="summary-label">Top Branch</span>
-        <span class="summary-value">{{ summary.topBranch.name }}</span>
-      </div>
+
+  <div class="summary-card">
+    <div class="summary-icon">💰</div>
+    <div class="summary-info">
+      <span class="summary-label">Total Revenue</span>
+      <span class="summary-value">
+        {{ summary.totalRevenue > 0 ? (summary.totalRevenue | number:'1.2-2') + ' EGP' : 'No data' }}
+      </span>
     </div>
   </div>
+
+  <div class="summary-card">
+    <div class="summary-icon">🛒</div>
+    <div class="summary-info">
+      <span class="summary-label">Online Orders</span>
+      <span class="summary-value">
+        {{ summary.totalSales > 0 ? (summary.totalSales | number) : 'No data' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-icon">📦</div>
+    <div class="summary-info">
+      <span class="summary-label">Total Orders</span>
+      <span class="summary-value">
+        {{ summary.totalOrders > 0 ? (summary.totalOrders | number) : 'No data' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <div class="summary-icon">🏆</div>
+    <div class="summary-info">
+      <span class="summary-label">Top Branch</span>
+      <span class="summary-value">
+        {{ (summary.topBranch && summary.topBranch.revenue > 0) ? summary.topBranch.name : 'No data' }}
+      </span>
+      <span class="summary-sub" *ngIf="summary.topBranch && summary.topBranch.revenue > 0">
+        {{ summary.topBranch.revenue | number:'1.2-2' }} EGP
+      </span>
+    </div>
+  </div>
+
+</div>
 
   <!-- Chart Wrapper with Horizontal Scroll -->
 <div class="chart-wrapper"

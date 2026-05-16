@@ -235,8 +235,14 @@ export class DashboardService {
     return this.cardDataSubject.asObservable();
   }
 
-  getStores(): Observable<StoresApiResponse> {
-  return this.httpclient.get<StoresApiResponse>('/api/admin/analytics/stores');
+  getStores(startDate?: Date, endDate?: Date): Observable<StoresApiResponse> {
+  let url = '/api/admin/analytics/stores';
+  if (startDate && endDate) {
+    const start = startDate.toISOString();
+    const end   = endDate.toISOString();
+    url += `?start_date=${encodeURIComponent(start)}&end_date=${encodeURIComponent(end)}`;
+  }
+  return this.httpclient.get<StoresApiResponse>(url);
 }
 
  getUsers(): Observable<any> {
