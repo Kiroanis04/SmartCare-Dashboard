@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -226,7 +226,8 @@ export class ProductsComponent implements AfterViewInit {
   constructor(
     private http: HttpClient,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -299,6 +300,7 @@ export class ProductsComponent implements AfterViewInit {
           this.totalCount = response.data.totalCount;
           this.dataSource.data = [...this.allProducts];
           this.extractFilterOptions();
+          this.cdr.detectChanges();
         } else {
           this.errorMessage = response.message || 'Failed to load products';
         }
@@ -437,8 +439,27 @@ export class ProductsComponent implements AfterViewInit {
       },
       error: (err) => {
   this.isCreating = false;
-  const apiMessage = err?.error?.message || err?.message || 'Server error during create';
-  this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
+  console.error('Create error:', err);
+  let errorMessage = 'Server error during create';
+  let errorDetail = '';
+
+  if (err.error) {
+    if (typeof err.error === 'string') {
+      try {
+        const parsed = JSON.parse(err.error);
+        errorMessage = parsed.message || errorMessage;
+        errorDetail = this.extractErrorDetail(parsed.errorsBag);
+      } catch {
+        errorMessage = err.error;
+      }
+    } else if (typeof err.error === 'object') {
+      errorMessage = err.error.message || errorMessage;
+      errorDetail = this.extractErrorDetail(err.error.errorsBag);
+    }
+  }
+
+  const fullMessage = errorDetail ? `${errorMessage}\n${errorDetail}` : errorMessage;
+  this.snackBar.open('❌ ' + fullMessage, 'Close', { duration: 6000, panelClass: 'multi-line-snackbar' });
 }
     });
   }
@@ -478,6 +499,7 @@ export class ProductsComponent implements AfterViewInit {
 submitUpdate() {
   if (!this.updateForm.productId) return;
   this.isUpdating = true;
+  this.cdr.detectChanges();
 
   const fd = new FormData();
   fd.append('ProductId', this.updateForm.productId);
@@ -495,24 +517,85 @@ submitUpdate() {
   fd.append('DosageForm', this.updateForm.dosageForm);
   if (this.updateForm.newMainImage) fd.append('NewMainImage', this.updateForm.newMainImage);
 
-  this.http.put<any>(`${this.baseUrl}/api/admin/Products/update`, fd).subscribe({
+  this.http.put<any>(`${this.baseUrl}/api/admin/Products/update`, fd, { observe: 'response' }).subscribe({
     next: (res) => {
       this.isUpdating = false;
-      if (res.succeeded) {
+      this.cdr.detectChanges();
+      if (res.body && res.body.succeeded) {
         this.snackBar.open('✅ Product updated successfully', 'Close', { duration: 3000 });
         this.dialog.closeAll();
         this.loadProducts();
+      } else if (res.body && !res.body.succeeded) {
+        const errorDetail = this.extractErrorDetail(res.body.errorsBag);
+        let msg = res.body.message || 'Update failed';
+        if (errorDetail) msg += `\n${errorDetail}`;
+        this.snackBar.open('❌ ' + msg, 'Close', { duration: 6000, panelClass: 'multi-line-snackbar' });
       } else {
-        // Business logic error (e.g., validation from server)
-        this.snackBar.open('❌ ' + (res.message || 'Update failed'), 'Close', { duration: 4000 });
+        this.snackBar.open('❌ Unexpected response from server', 'Close', { duration: 4000 });
       }
     },
     error: (err) => {
-  this.isUpdating = false;
-  const apiMessage = err?.error?.message || err?.message || 'Server error during update';
-  this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
-}
+      this.isUpdating = false;
+      this.cdr.detectChanges();
+      console.error('Update error full object:', err);
+
+      const processErrorResponse = (errorBody: any) => {
+        let jsonData = null;
+        let errorText = '';
+        if (typeof errorBody === 'string') {
+          errorText = errorBody;
+          try {
+            jsonData = JSON.parse(errorBody);
+          } catch { /* JSON */ }
+        } else if (errorBody instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const text = reader.result as string;
+            processErrorResponse(text);
+          };
+          reader.readAsText(errorBody);
+          return;
+        } else if (typeof errorBody === 'object') {
+          jsonData = errorBody;
+        }
+
+        if (jsonData && typeof jsonData === 'object') {
+          const detail = this.extractErrorDetail(jsonData.errorsBag);
+          let msg = jsonData.message || 'Update failed';
+          if (detail) msg += `\n${detail}`;
+          this.snackBar.open('❌ ' + msg, 'Close', { duration: 6000, panelClass: 'multi-line-snackbar' });
+        } else if (errorText) {
+          this.snackBar.open('❌ ' + errorText, 'Close', { duration: 6000 });
+        } else {
+          this.snackBar.open(`❌ HTTP ${err.status}: ${err.statusText || 'Bad Request'}`, 'Close', { duration: 4000 });
+        }
+      };
+
+      processErrorResponse(err.error);
+    }
   });
+}
+
+private showErrorSnackbar(errorData: any) {
+  let fullMessage = errorData.message || 'Update failed';
+  const errorDetail = this.extractErrorDetail(errorData.errorsBag);
+  if (errorDetail) fullMessage += `\n${errorDetail}`;
+  this.snackBar.open('❌ ' + fullMessage, 'Close', { duration: 6000, panelClass: 'multi-line-snackbar' });
+}
+
+private extractErrorDetail(errorsBag: any): string {
+  if (!errorsBag) return '';
+  if (typeof errorsBag === 'string') return errorsBag;
+  if (Array.isArray(errorsBag)) return errorsBag.join(', ');
+  if (typeof errorsBag === 'object') {
+    return Object.entries(errorsBag)
+      .map(([field, msgs]) => {
+        const msgArray = Array.isArray(msgs) ? msgs : [msgs];
+        return `• ${field}: ${msgArray.join(', ')}`;
+      })
+      .join('\n');
+  }
+  return '';
 }
 
   // ── DELETE ────────────────────────────────────────────────
@@ -539,12 +622,26 @@ confirmDelete() {
       }
     },
     error: (err) => {
-      this.isDeleting = false;
-      // ✅ Extract message from the API error response body
-      const apiMessage = err?.error?.message || err?.message || 'Server error during delete';
-      this.snackBar.open('❌ ' + apiMessage, 'Close', { duration: 4000 });
-      this.dialog.closeAll();
+  this.isDeleting = false;
+  console.error('Delete error:', err);
+  let errorMessage = 'Server error during delete';
+
+  if (err.error) {
+    if (typeof err.error === 'string') {
+      try {
+        const parsed = JSON.parse(err.error);
+        errorMessage = parsed.message || errorMessage;
+      } catch {
+        errorMessage = err.error;
+      }
+    } else if (typeof err.error === 'object') {
+      errorMessage = err.error.message || errorMessage;
     }
+  }
+
+  this.snackBar.open('❌ ' + errorMessage, 'Close', { duration: 4000 });
+  this.dialog.closeAll();
+}
   });
 }
 

@@ -835,3 +835,10 @@ table {
   color: #ef4444;
   font-weight: 700;
 }
+
+.multi-line-snackbar {
+  white-space: pre-wrap;
+  line-height: 1.4;
+  max-width: 450px;
+  font-size: 14px;
+}
