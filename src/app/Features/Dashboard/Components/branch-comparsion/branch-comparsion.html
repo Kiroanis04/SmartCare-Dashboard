@@ -65,14 +65,14 @@
       <div class="summary-icon">💰</div>
       <div class="summary-info">
         <span class="summary-label">Total Revenue</span>
-        <span class="summary-value">{{ summary.totalRevenue / 1000000 | number:'1.1-1' }}M EGP</span>
+        <span class="summary-value">{{ summary.totalRevenue | number:'1.2-2' }} EGP</span>
       </div>
     </div>
     <div class="summary-card">
-      <div class="summary-icon">💵</div>
+      <div class="summary-icon">🛒</div>
       <div class="summary-info">
-        <span class="summary-label">Total Sales</span>
-        <span class="summary-value">{{ summary.totalSales / 1000000 | number:'1.1-1' }}M EGP</span>
+        <span class="summary-label">Online Orders</span>
+        <span class="summary-value">{{ summary.totalSales | number }}</span>
       </div>
     </div>
     <div class="summary-card">
@@ -114,7 +114,7 @@
         </div>
         <div class="legend-metric">
           <div class="legend-color sales-color"></div>
-          <span class="legend-label">Total Sales (EGP)</span>
+          <span class="legend-label">Online Orders</span>
         </div>
         <div class="legend-metric">
           <div class="legend-color orders-color"></div>

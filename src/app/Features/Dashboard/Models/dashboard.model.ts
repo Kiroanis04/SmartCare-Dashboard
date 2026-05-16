@@ -72,6 +72,8 @@ export interface BranchData {
   revenue: number;
   sales: number;
   orders: number;
+  pickupOrders?: number;
+  percentageOfRevenue?: number;
   color: string;
 }
 
@@ -106,4 +108,21 @@ export interface StockStatus {
   color: string;
   label: string;
   icon: string;
+}
+
+export interface StoreData {
+  branchId: string;
+  branchName: string;
+  revenue: number;
+  onlineOrders: number;
+  totalOrders: number;
+  pickupOrders: number;
+  percentageOfRevenue: number;
+}
+
+export interface StoresApiResponse {
+  statusCode: number;
+  succeeded: boolean;
+  message: string;
+  data: StoreData[];
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { CardData, AdminProfile, BranchData, DateRange, CategoryData, LowStockApiResponse, AdminProfileApiResponse } from '../Models/dashboard.model';
+import { CardData, AdminProfile, BranchData, DateRange, CategoryData, LowStockApiResponse, AdminProfileApiResponse, StoresApiResponse } from '../Models/dashboard.model';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -234,6 +234,10 @@ export class DashboardService {
   getCardData(): Observable<CardData> {
     return this.cardDataSubject.asObservable();
   }
+
+  getStores(): Observable<StoresApiResponse> {
+  return this.httpclient.get<StoresApiResponse>('/api/admin/analytics/stores');
+}
 
  getUsers(): Observable<any> {
   return this.httpclient.get<any>("/api/admin/analytics/clients");

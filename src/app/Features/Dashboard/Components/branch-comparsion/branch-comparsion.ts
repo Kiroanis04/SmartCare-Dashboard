@@ -164,7 +164,7 @@ handleCanvasHover(event: MouseEvent) {
       {
         x: groupX + adjustedBarWidth,
         value: this.currentSalesValues[i],
-        label: 'Sales',
+        label: 'Online Orders',
         color: '#f59e0b',
         format: (v: number) => v >= 1000000 ? `${(v/1000000).toFixed(2)}M EGP` : `${(v/1000).toFixed(1)}K EGP`
       },
@@ -269,39 +269,69 @@ checkScreenSize() {
   }
 }
 
-  loadBranchData() {
-   // this.isLoading = true;
+loadBranchData() {
+  this.isLoading = true;
 
-    this.subscriptions.push(
-      this.dashboardService.getBranchDataByDateRange(this.dateRange).subscribe(data => {
-        this.branchData = data;
+  this.subscriptions.push(
+    this.dashboardService.getStores().subscribe({
+      next: (response) => {
+        if (response.succeeded && response.data) {
+          // Map API response to chart-friendly format
+          this.branchData = response.data.map((store, index) => ({
+            name: store.branchName,
+            revenue: store.revenue,
+            sales: store.onlineOrders,   // repurposed field
+            orders: store.totalOrders,
+            pickupOrders: store.pickupOrders,
+            percentageOfRevenue: store.percentageOfRevenue,
+            color: this.getBranchColor(index)
+          }));
+        }
+        this.isLoading = false;
         this.updateChartData();
         this.calculateSummary();
+        this.checkScreenSize();
+        setTimeout(() => this.drawChart(), 100);
+      },
+      error: (err) => {
+        console.error('Failed to load store data', err);
         this.isLoading = false;
-        this.checkScreenSize(); // Recalculate canvas width
-        setTimeout(() => {
-          this.drawChart();
-        }, 100);
-      })
-    );
+      }
+    })
+  );
+}
+
+private getBranchColor(index: number): string {
+  const colors = [
+    '#ef4444','#3b82f6','#10b981','#f59e0b',
+    '#8b5cf6','#ec4899','#06b6d4','#6366f1',
+    '#14b8a6','#f97316','#84cc16','#a855f7','#64748b'
+  ];
+  return colors[index % colors.length];
+}
+
+
+updateChartData() {
+  if (this.branchData.length === 0) return;
+
+  this.targetRevenueValues = this.branchData.map(branch => branch.revenue);
+  this.targetSalesValues = this.branchData.map(branch => branch.sales);
+  this.targetOrdersValues = this.branchData.map(branch => branch.orders);
+
+  this.maxRevenueValue = Math.max(...this.targetRevenueValues, 0);
+  this.maxSalesValue = Math.max(...this.targetSalesValues, 0);
+  this.maxOrdersValue = Math.max(...this.targetOrdersValues, 0);
+
+
+  const globalMax = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue);
+  if (globalMax === 0) {
+    this.maxRevenueValue = this.maxSalesValue = this.maxOrdersValue = 1;
   }
 
-
-  updateChartData() {
-    if (this.branchData.length === 0) return;
-
-    this.targetRevenueValues = this.branchData.map(branch => branch.revenue);
-    this.targetSalesValues = this.branchData.map(branch => branch.sales);
-    this.targetOrdersValues = this.branchData.map(branch => branch.orders);
-
-    this.maxRevenueValue = Math.max(...this.targetRevenueValues, 1);
-    this.maxSalesValue = Math.max(...this.targetSalesValues, 1);
-    this.maxOrdersValue = Math.max(...this.targetOrdersValues, 1);
-
-    this.currentRevenueValues = [...this.targetRevenueValues];
-    this.currentSalesValues = [...this.targetSalesValues];
-    this.currentOrdersValues = [...this.targetOrdersValues];
-  }
+  this.currentRevenueValues = [...this.targetRevenueValues];
+  this.currentSalesValues = [...this.targetSalesValues];
+  this.currentOrdersValues = [...this.targetOrdersValues];
+}
 
   calculateSummary() {
     if (!this.branchData.length) {
@@ -367,34 +397,31 @@ checkScreenSize() {
     //this.loadBranchData();
   }
 
-  drawChart() {
-    if (!this.chartCanvas || this.branchData.length === 0) return;
+drawChart() {
+  if (!this.chartCanvas || this.branchData.length === 0) return;
 
-    const canvas = this.chartCanvas.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const canvas = this.chartCanvas.nativeElement;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-    // Use calculated canvas width (fixed for horizontal scroll on mobile)
-    const width = this.canvasWidth;
-    const height = this.chartHeight;
+  const width = this.canvasWidth;
+  const height = this.chartHeight;
 
-    // Set canvas dimensions with device pixel ratio for sharp rendering
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.scale(dpr, dpr);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.scale(dpr, dpr);
 
-    ctx.clearRect(0, 0, width, height);
+  ctx.clearRect(0, 0, width, height);
 
-    // Adjust padding based on screen size
-    const padding = this.getResponsivePadding(width);
+  const padding = this.getResponsivePadding(width);
 
-    this.drawGrid(ctx, width, height, padding);
-    this.drawGroupedBars(ctx, width, height, padding);
-    this.drawLabels(ctx, width, height, padding);
-  }
+  this.drawGrid(ctx, width, height, padding);
+  this.drawGroupedBars(ctx, width, height, padding);
+  this.drawLabels(ctx, width, height, padding);
+}
 
   getResponsivePadding(width: number) {
     if (width < 500) {
@@ -406,127 +433,166 @@ checkScreenSize() {
     }
   }
 
-  drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, padding: any) {
-    const gridLines = this.isMobile ? 4 : 6;
-    const chartHeight = height - padding.top - padding.bottom;
+drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, padding: any) {
+  const gridLines = this.isMobile ? 4 : 6;
+  const chartHeight = height - padding.top - padding.bottom;
 
-    ctx.save();
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
+  ctx.save();
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
 
-    const maxValue = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue);
-    const fontSize = this.isMobile ? 9 : 11;
-    ctx.font = `${fontSize}px Inter, system-ui, sans-serif`;
+  const maxValue = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue, 1);
+  const fontSize = this.isMobile ? 9 : 11;
+  ctx.font = `${fontSize}px Inter, system-ui, sans-serif`;
 
-    for (let i = 0; i <= gridLines; i++) {
-      const y = padding.top + (chartHeight / gridLines) * i;
-      const value = maxValue * (1 - i / gridLines);
+  for (let i = 0; i <= gridLines; i++) {
+    const y = padding.top + (chartHeight / gridLines) * i;
+    const value = maxValue * (1 - i / gridLines);
 
-      ctx.beginPath();
-      ctx.moveTo(padding.left, y);
-      ctx.lineTo(width - padding.right, y);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
 
-      let label = '';
-      if (value >= 1000000) {
-        label = `${(value / 1000000).toFixed(1)}M`;
-      } else if (value >= 1000) {
-        label = `${(value / 1000).toFixed(0)}K`;
-      } else {
-        label = Math.round(value).toString();
-      }
-
-      ctx.fillStyle = '#64748b';
-      ctx.fillText(label, 5, y + 4);
+    let label = '';
+    if (maxValue >= 1_000_000) {
+      label = `${(value / 1_000_000).toFixed(1)}M`;
+    } else if (maxValue >= 1000) {
+      label = `${(value / 1000).toFixed(0)}K`;
+    } else {
+      label = value.toFixed(0);
     }
 
-    ctx.restore();
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(label, 5, y + 4);
   }
+
+  ctx.restore();
+}
 
   drawGroupedBars(ctx: CanvasRenderingContext2D, width: number, height: number, padding: any) {
-    if (this.branchData.length === 0) return;
+  if (this.branchData.length === 0) return;
 
-    const chartHeight = height - padding.top - padding.bottom;
-    const barGroupWidth = (width - padding.left - padding.right) / this.branchData.length * 0.85;
-    const barSpacing = (width - padding.left - padding.right) / this.branchData.length;
-    const singleBarWidth = barGroupWidth / 3;
-    const maxValue = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue);
+  const MIN_BAR_HEIGHT = 5; // الحد الأدنى لارتفاع العمود بالبكسل
+  const chartHeight = height - padding.top - padding.bottom;
+  const barGroupWidth = (width - padding.left - padding.right) / this.branchData.length * 0.85;
+  const barSpacing = (width - padding.left - padding.right) / this.branchData.length;
+  const singleBarWidth = barGroupWidth / 3;
+  const maxValue = Math.max(this.maxRevenueValue, this.maxSalesValue, this.maxOrdersValue, 1);
 
-    const barGap = 2;
-    const adjustedBarWidth = singleBarWidth - barGap;
+  const barGap = 2;
+  const adjustedBarWidth = singleBarWidth - barGap;
+  const labelFontSize = this.isMobile ? 7 : 9;
 
-    for (let i = 0; i < this.branchData.length; i++) {
-      const groupX = padding.left + (i * barSpacing) + (barSpacing - barGroupWidth) / 2;
+  for (let i = 0; i < this.branchData.length; i++) {
+    const groupX = padding.left + (i * barSpacing) + (barSpacing - barGroupWidth) / 2;
 
-      // Revenue Bar (Green)
-      const revenueHeight = (this.currentRevenueValues[i] / maxValue) * chartHeight;
-      const revenueX = groupX;
-      const revenueGradient = ctx.createLinearGradient(revenueX, padding.top + chartHeight - revenueHeight, revenueX, padding.top + chartHeight);
-      revenueGradient.addColorStop(0, '#10b981');
-      revenueGradient.addColorStop(1, '#059669');
-      ctx.fillStyle = revenueGradient;
-      ctx.fillRect(revenueX, padding.top + chartHeight - revenueHeight, adjustedBarWidth, Math.max(revenueHeight, 2));
+    // ---- Revenue Bar (Green) ----
+    let revenueHeight = (this.currentRevenueValues[i] / maxValue) * chartHeight;
+    let revenueY = padding.top + chartHeight - revenueHeight;
+    if (this.currentRevenueValues[i] > 0 && revenueHeight < MIN_BAR_HEIGHT) {
+      revenueHeight = MIN_BAR_HEIGHT;
+      revenueY = padding.top + chartHeight - revenueHeight;
+    }
+    const revenueGradient = ctx.createLinearGradient(groupX, revenueY, groupX, revenueY + revenueHeight);
+    revenueGradient.addColorStop(0, '#10b981');
+    revenueGradient.addColorStop(1, '#059669');
+    ctx.fillStyle = revenueGradient;
+    ctx.fillRect(groupX, revenueY, adjustedBarWidth, Math.max(revenueHeight, 0));
 
-      // Sales Bar (Orange)
-      const salesHeight = (this.currentSalesValues[i] / maxValue) * chartHeight;
-      const salesX = groupX + adjustedBarWidth;
-      const salesGradient = ctx.createLinearGradient(salesX, padding.top + chartHeight - salesHeight, salesX, padding.top + chartHeight);
-      salesGradient.addColorStop(0, '#f59e0b');
-      salesGradient.addColorStop(1, '#d97706');
-      ctx.fillStyle = salesGradient;
-      ctx.fillRect(salesX, padding.top + chartHeight - salesHeight, adjustedBarWidth, Math.max(salesHeight, 2));
+    // ---- Sales Bar (Orange) ----
+    let salesHeight = (this.currentSalesValues[i] / maxValue) * chartHeight;
+    let salesY = padding.top + chartHeight - salesHeight;
+    if (this.currentSalesValues[i] > 0 && salesHeight < MIN_BAR_HEIGHT) {
+      salesHeight = MIN_BAR_HEIGHT;
+      salesY = padding.top + chartHeight - salesHeight;
+    }
+    const salesGradient = ctx.createLinearGradient(groupX + adjustedBarWidth, salesY, groupX + adjustedBarWidth, salesY + salesHeight);
+    salesGradient.addColorStop(0, '#f59e0b');
+    salesGradient.addColorStop(1, '#d97706');
+    ctx.fillStyle = salesGradient;
+    ctx.fillRect(groupX + adjustedBarWidth, salesY, adjustedBarWidth, Math.max(salesHeight, 0));
 
-      // Orders Bar (Purple)
-      const ordersHeight = (this.currentOrdersValues[i] / maxValue) * chartHeight;
-      const ordersX = groupX + (adjustedBarWidth * 2);
-      const ordersGradient = ctx.createLinearGradient(ordersX, padding.top + chartHeight - ordersHeight, ordersX, padding.top + chartHeight);
-      ordersGradient.addColorStop(0, '#8b5cf6');
-      ordersGradient.addColorStop(1, '#6d28d9');
-      ctx.fillStyle = ordersGradient;
-      ctx.fillRect(ordersX, padding.top + chartHeight - ordersHeight, adjustedBarWidth, Math.max(ordersHeight, 2));
+    // ---- Orders Bar (Purple) ----
+    let ordersHeight = (this.currentOrdersValues[i] / maxValue) * chartHeight;
+    let ordersY = padding.top + chartHeight - ordersHeight;
+    if (this.currentOrdersValues[i] > 0 && ordersHeight < MIN_BAR_HEIGHT) {
+      ordersHeight = MIN_BAR_HEIGHT;
+      ordersY = padding.top + chartHeight - ordersHeight;
+    }
+    const ordersGradient = ctx.createLinearGradient(groupX + adjustedBarWidth * 2, ordersY, groupX + adjustedBarWidth * 2, ordersY + ordersHeight);
+    ordersGradient.addColorStop(0, '#8b5cf6');
+    ordersGradient.addColorStop(1, '#6d28d9');
+    ctx.fillStyle = ordersGradient;
+    ctx.fillRect(groupX + adjustedBarWidth * 2, ordersY, adjustedBarWidth, Math.max(ordersHeight, 0));
 
-      // Add value labels on top of bars
-      const labelFontSize = this.isMobile ? 7 : 9;
-      ctx.font = `bold ${labelFontSize}px Inter, system-ui, sans-serif`;
+    // ---- Draw labels on/above bars (always visible for positive values) ----
+    ctx.font = `bold ${labelFontSize}px Inter, system-ui, sans-serif`;
+    ctx.shadowBlur = 0; // clear shadow for text
 
-      // Revenue label
-      if (this.currentRevenueValues[i] > 0 && revenueHeight > 15) {
-        let revenueText = '';
-        if (this.currentRevenueValues[i] >= 1000000) {
-          revenueText = `${(this.currentRevenueValues[i] / 1000000).toFixed(1)}M`;
-        } else if (this.currentRevenueValues[i] >= 1000) {
-          revenueText = `${(this.currentRevenueValues[i] / 1000).toFixed(0)}K`;
-        } else {
-          revenueText = Math.round(this.currentRevenueValues[i]).toString();
-        }
-        const revenueTextWidth = ctx.measureText(revenueText).width;
+    // Revenue label
+    if (this.currentRevenueValues[i] > 0) {
+      let revenueText = '';
+      if (this.currentRevenueValues[i] >= 1_000_000) {
+        revenueText = `${(this.currentRevenueValues[i] / 1_000_000).toFixed(1)}M`;
+      } else if (this.currentRevenueValues[i] >= 1000) {
+        revenueText = `${(this.currentRevenueValues[i] / 1000).toFixed(0)}K`;
+      } else {
+        revenueText = Math.round(this.currentRevenueValues[i]).toString();
+      }
+      const textWidth = ctx.measureText(revenueText).width;
+      const textX = groupX + (adjustedBarWidth - textWidth) / 2;
+      let textY = revenueY - 3;
+      let useInside = (revenueHeight > 18);
+      if (!useInside) {
+        textY = revenueY - 5;
+        ctx.fillStyle = '#0f172a';
+      } else {
         ctx.fillStyle = '#065f46';
-        ctx.fillText(revenueText, revenueX + (adjustedBarWidth - revenueTextWidth) / 2, padding.top + chartHeight - revenueHeight - 3);
       }
+      ctx.fillText(revenueText, textX, textY);
+    }
 
-      // Sales label
-      if (this.currentSalesValues[i] > 0 && salesHeight > 15) {
-        let salesText = '';
-        if (this.currentSalesValues[i] >= 1000000) {
-          salesText = `${(this.currentSalesValues[i] / 1000000).toFixed(1)}M`;
-        } else if (this.currentSalesValues[i] >= 1000) {
-          salesText = `${(this.currentSalesValues[i] / 1000).toFixed(0)}K`;
-        } else {
-          salesText = Math.round(this.currentSalesValues[i]).toString();
-        }
-        const salesTextWidth = ctx.measureText(salesText).width;
+    // Sales label
+    if (this.currentSalesValues[i] > 0) {
+      let salesText = '';
+      if (this.currentSalesValues[i] >= 1_000_000) {
+        salesText = `${(this.currentSalesValues[i] / 1_000_000).toFixed(1)}M`;
+      } else if (this.currentSalesValues[i] >= 1000) {
+        salesText = `${(this.currentSalesValues[i] / 1000).toFixed(0)}K`;
+      } else {
+        salesText = Math.round(this.currentSalesValues[i]).toString();
+      }
+      const textWidth = ctx.measureText(salesText).width;
+      const textX = groupX + adjustedBarWidth + (adjustedBarWidth - textWidth) / 2;
+      let textY = salesY - 3;
+      let useInside = (salesHeight > 18);
+      if (!useInside) {
+        textY = salesY - 5;
+        ctx.fillStyle = '#0f172a';
+      } else {
         ctx.fillStyle = '#92400e';
-        ctx.fillText(salesText, salesX + (adjustedBarWidth - salesTextWidth) / 2, padding.top + chartHeight - salesHeight - 3);
       }
+      ctx.fillText(salesText, textX, textY);
+    }
 
-      if (this.currentOrdersValues[i] > 0 && ordersHeight > 15) {
-        const ordersText = Math.round(this.currentOrdersValues[i]).toLocaleString();
-        const ordersTextWidth = ctx.measureText(ordersText).width;
+    // Orders label
+    if (this.currentOrdersValues[i] > 0) {
+      const ordersText = Math.round(this.currentOrdersValues[i]).toLocaleString();
+      const textWidth = ctx.measureText(ordersText).width;
+      const textX = groupX + adjustedBarWidth * 2 + (adjustedBarWidth - textWidth) / 2;
+      let textY = ordersY - 3;
+      let useInside = (ordersHeight > 18);
+      if (!useInside) {
+        textY = ordersY - 5;
+        ctx.fillStyle = '#0f172a';
+      } else {
         ctx.fillStyle = '#5b21b6';
-        ctx.fillText(ordersText, ordersX + (adjustedBarWidth - ordersTextWidth) / 2, padding.top + chartHeight - ordersHeight - 3);
       }
+      ctx.fillText(ordersText, textX, textY);
     }
   }
+}
 
   drawLabels(ctx: CanvasRenderingContext2D, width: number, height: number, padding: any) {
     const barSpacing = (width - padding.left - padding.right) / this.branchData.length;
