@@ -1,6 +1,6 @@
 {
   "buildCommand": "npx ng build",
-  "outputDirectory": "dist/SmartCare-Dashboard",
+  "outputDirectory": "dist/smart-care-dashboard/browser",
   "installCommand": "npm install",
   "framework": "angular"
 }
