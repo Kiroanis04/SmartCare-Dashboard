@@ -445,7 +445,7 @@ export class OrdersComponent implements AfterViewInit {
     const ordersData: Orders[] = [
       {
         position: 1,
-        ClientName: 'John Smith',
+        ClientName: 'Kyrillos anis',
         price: 156.50,
         BranchName: 'Mansoura Store',
         OrderType: 'Online',
@@ -462,7 +462,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 2,
-        ClientName: 'Sarah Johnson',
+        ClientName: 'Kyrillos anis',
         price: 89.75,
         BranchName: 'Azbt El-NAKHEL Store',
         OrderType: 'Pickup',
@@ -478,7 +478,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 3,
-        ClientName: 'Michael Brown',
+        ClientName: 'Kyrillos anis',
         price: 405.00,
         BranchName: 'Giza store',
         OrderType: 'Online',
@@ -494,7 +494,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 4,
-        ClientName: 'Emily Davis',
+        ClientName: 'Kyrillos Maher',
         price: 45.00,
         BranchName: 'Sohag Store',
         OrderType: 'Online',
@@ -509,7 +509,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 5,
-        ClientName: 'David Wilson',
+        ClientName: 'Kyrillos Maher',
         price: 91.00,
         BranchName: 'El- Damerdash Branch',
         OrderType: 'Online',
@@ -525,7 +525,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 6,
-        ClientName: 'Lisa Anderson',
+        ClientName: 'Kyrillos Maher',
         price: 59.50,
         BranchName: 'Hurghada Store',
         OrderType: 'Online',
@@ -541,7 +541,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 7,
-        ClientName: 'Robert Taylor',
+        ClientName: 'Kyrillos Maher',
         price: 90.00,
         BranchName: 'El- Damerdash Branch',
         OrderType: 'Online',
@@ -557,7 +557,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 8,
-        ClientName: 'Maria Garcia',
+        ClientName: 'MarkAyman',
         price: 171.00,
         BranchName: 'Mansoura Store',
         OrderType: 'Online',
@@ -573,7 +573,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 9,
-        ClientName: 'James Martinez',
+        ClientName: 'Kyrillos Maher',
         price: 55.00,
         BranchName: 'Sohag Store',
         OrderType: 'Pickup',
@@ -588,7 +588,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 10,
-        ClientName: 'Patricia Brown',
+        ClientName: 'MarkAyman',
         price: 98.00,
         BranchName: 'Azbt El-NAKHEL Store',
         OrderType: 'Online',
@@ -604,7 +604,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 11,
-        ClientName: 'Jennifer Lee',
+        ClientName: 'StevenAyad',
         price: 120.00,
         BranchName: 'Down Town Cairo Store',
         OrderType: 'Online',
@@ -620,7 +620,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
         position: 12,
-        ClientName: 'Thomas White',
+        ClientName: 'Kyrillos anis',
         price: 200.00,
         BranchName: 'Hurghada Store',
         OrderType: 'Pickup',
@@ -635,7 +635,7 @@ export class OrdersComponent implements AfterViewInit {
       },
       {
     position: 13,
-    ClientName: 'Ahmed Hassan',
+    ClientName: 'Kyrillos anis',
     price: 310.00,
     BranchName: 'Nasr City Store',
     OrderType: 'Online',
@@ -651,7 +651,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 14,
-    ClientName: 'Mona Zaki',
+    ClientName: 'MarkAyman',
     price: 65.50,
     BranchName: 'Tanta Store',
     OrderType: 'Pickup',
@@ -667,7 +667,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 15,
-    ClientName: 'Omar Sherif',
+    ClientName: 'StevenAyad',
     price: 1200.00,
     BranchName: 'Maadi Store',
     OrderType: 'Online',
@@ -682,7 +682,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 16,
-    ClientName: 'Laila Mourad',
+    ClientName: 'StevenAyad',
     price: 240.00,
     BranchName: 'Alex Store Med Center',
     OrderType: 'Online',
@@ -698,7 +698,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 17,
-    ClientName: 'Khaled El Sawy',
+    ClientName: 'Kyrillos anis',
     price: 55.00,
     BranchName: 'Aswan Health Point',
     OrderType: 'Pickup',
@@ -713,7 +713,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 18,
-    ClientName: 'Yasmine Sabri',
+    ClientName: 'Kyrillos anis',
     price: 430.00,
     BranchName: 'Giza Store',
     OrderType: 'Online',
@@ -729,7 +729,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 19,
-    ClientName: 'Tarek Lotfy',
+    ClientName: 'Kyrillos anis',
     price: 110.00,
     BranchName: 'Sohag Store',
     OrderType: 'Online',
@@ -744,7 +744,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 20,
-    ClientName: 'Hoda Hany',
+    ClientName: 'Kyrillos anis',
     price: 85.00,
     BranchName: 'El- Damerdash Branch',
     OrderType: 'Online',
@@ -759,7 +759,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 21,
-    ClientName: 'Mostafa Amar',
+    ClientName: 'Mark Ayman',
     price: 670.00,
     BranchName: 'Down Town Cairo Store',
     OrderType: 'Online',
@@ -774,7 +774,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 22,
-    ClientName: 'Nour Ali',
+    ClientName: 'StevenAyad',
     price: 45.00,
     BranchName: 'Mansoura Store',
     OrderType: 'Pickup',
@@ -789,7 +789,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 23,
-    ClientName: 'Karim Abdel Aziz',
+    ClientName: 'Mark Ayman',
     price: 195.00,
     BranchName: 'Hurghada Store',
     OrderType: 'Online',
@@ -804,7 +804,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 24,
-    ClientName: 'Samiha Ayoub',
+    ClientName: 'StevenAyad',
     price: 32.00,
     BranchName: 'Azbt El-NAKHEL Store',
     OrderType: 'Online',
@@ -819,7 +819,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 25,
-    ClientName: 'Hany Ramzy',
+    ClientName: 'Mark Ayman',
     price: 150.00,
     BranchName: 'Nasr City Store',
     OrderType: 'Online',
@@ -834,7 +834,7 @@ export class OrdersComponent implements AfterViewInit {
   },
   {
     position: 26,
-    ClientName: 'Dina El Sherbiny',
+    ClientName: 'Mark Ayman',
     price: 520.00,
     BranchName: 'Maadi Store',
     OrderType: 'Online',
@@ -848,97 +848,6 @@ export class OrdersComponent implements AfterViewInit {
       { productName: 'Replacement Heads', quantity: 1, price: 70.00, total: 70.00 }
     ]
   },
-  {
-    position: 27,
-    ClientName: 'Mohamed Ramadan',
-    price: 88.00,
-    BranchName: 'Giza Store',
-    OrderType: 'Pickup',
-    Orderstatus: 'Pending',
-    date: new Date(2024, 1, 11),
-    orderId: 'ORD-027',
-    totalItems: 2,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Protein Bar', quantity: 4, price: 22.00, total: 88.00 }
-    ]
-  },
-  {
-    position: 28,
-    ClientName: 'Farida Seif',
-    price: 140.00,
-    BranchName: 'Tanta Store',
-    OrderType: 'Online',
-    Orderstatus: 'Cancelled',
-    date: new Date(2024, 1, 12),
-    orderId: 'ORD-028',
-    totalItems: 1,
-    paymentMethod: 'PayPal',
-    items: [
-      { productName: 'Inhaler', quantity: 1, price: 140.00, total: 140.00 }
-    ]
-  },
-  {
-    position: 29,
-    ClientName: 'Sherif Amer',
-    price: 215.00,
-    BranchName: 'Alex Store Med Center',
-    OrderType: 'Online',
-    Orderstatus: 'Shipped',
-    date: new Date(2024, 1, 13),
-    orderId: 'ORD-029',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Knee Brace', quantity: 1, price: 175.00, total: 175.00 },
-      { productName: 'Elastic Bandage', quantity: 2, price: 20.00, total: 40.00 }
-    ]
-  },
-  {
-    position: 30,
-    ClientName: 'Magdy Yacoub',
-    price: 950.00,
-    BranchName: 'Aswan Health Point',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 1, 14),
-    orderId: 'ORD-030',
-    totalItems: 1,
-    paymentMethod: 'Bank Transfer',
-    items: [
-      { productName: 'Stethoscope Pro', quantity: 1, price: 950.00, total: 950.00 }
-    ]
-  },
-  {
-    position: 31,
-    ClientName: 'Hend Sabry',
-    price: 45.00,
-    BranchName: 'Hurghada Store',
-    OrderType: 'Pickup',
-    Orderstatus: 'WaitingForPickup',
-    date: new Date(2024, 1, 15),
-    orderId: 'ORD-031',
-    totalItems: 1,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Lip Balm Medicated', quantity: 1, price: 45.00, total: 45.00 }
-    ]
-  },
-  {
-    position: 32,
-    ClientName: 'Wael Jassar',
-    price: 330.00,
-    BranchName: 'Sohag Store',
-    OrderType: 'Online',
-    Orderstatus: 'Processing',
-    date: new Date(2024, 1, 16),
-    orderId: 'ORD-032',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Multi-Vitamin 100pk', quantity: 2, price: 165.00, total: 330.00 }
-    ]
-  }
     ];
 
      this.allOrders = ordersData;
