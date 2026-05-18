@@ -1,148 +1,205 @@
-<div class="orders-wrapper">
+<!-- orders-component.html (Delivery Fee column removed) -->
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Store & Orders Management</h1>
+    <p>Manage branches and track order statuses</p>
+  </div>
 
-  <!-- Filter Panel -->
-  <mat-accordion class="filter-accordion">
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>filter_list</mat-icon>
-          <span>Filter Orders</span>
-        </mat-panel-title>
-        <mat-panel-description>
-          Search by client name, status, branch, type or date range
-        </mat-panel-description>
-      </mat-expansion-panel-header>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+    <button class="alert-close" (click)="errorMessage = null">×</button>
+  </div>
 
-      <div class="filter-grid">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Search Client Name</mat-label>
-          <input matInput [(ngModel)]="searchClientName" placeholder="e.g. John" (input)="applyFilters()" />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Status</mat-label>
-          <mat-select [(ngModel)]="selectedOrderStatus" (selectionChange)="applyFilters()">
-            <mat-option value="">All Statuses</mat-option>
-            @for (status of OrderStatus; track status) {
-              <mat-option [value]="status">{{ status }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Branch Name</mat-label>
-          <mat-select [(ngModel)]="selectedBranchName" (selectionChange)="applyFilters()">
-            <mat-option value="">All Branches</mat-option>
-            @for (name of BranchName; track name) {
-              <mat-option [value]="name">{{ name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Order Type</mat-label>
-          <mat-select [(ngModel)]="selectedOrderType" (selectionChange)="applyFilters()">
-            <mat-option value="">All Types</mat-option>
-            @for (type of OrderType; track type) {
-              <mat-option [value]="type">{{ type }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="applyFilters()" />
-          <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="applyFilters()" />
-          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker></mat-datepicker>
-        </mat-form-field>
+  <div class="dashboard-grid">
+    <!-- Left Panel: Stores List with "All Branches" option -->
+    <div class="stores-panel card">
+      <div class="panel-header">
+        <h2>Branches</h2>
+        <span class="store-count">{{ stores.length + 1 }} locations</span>
       </div>
 
-      <div class="filter-actions">
-        <button mat-flat-button class="btn-apply" (click)="applyFilters()">
-          <mat-icon>check_circle</mat-icon> Apply Filters
-        </button>
-        <button mat-stroked-button class="btn-reset" (click)="resetFilters()">
-          <mat-icon>restart_alt</mat-icon> Reset
-        </button>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
+      <div class="stores-list">
+        <!-- All Branches option -->
+        <div class="store-item" [class.active]="selectedStoreId === 'all'" (click)="onStoreChange('all')">
+          <div class="store-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="store-info">
+            <div class="store-name">All Branches</div>
+            <div class="store-address">View orders from every store</div>
+          </div>
+          <div class="store-indicator" *ngIf="selectedStoreId === 'all'"></div>
+        </div>
 
-  <!-- Table -->
-  <div class="mat-elevation-z8 table-card">
-    <div class="table-header">
-      <div class="header-left">
-        <mat-icon>shopping_cart</mat-icon>
-        <span class="table-title">📦 Orders List</span>
+        <!-- Individual stores -->
+        <div *ngFor="let store of stores"
+             class="store-item"
+             [class.active]="selectedStoreId === store.id"
+             (click)="onStoreChange(store.id)">
+          <div class="store-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="store-info">
+            <div class="store-name">{{ store.name }}</div>
+            <div class="store-address">{{ store.address }}</div>
+            <div class="store-phone">{{ store.phone }}</div>
+          </div>
+          <div class="store-indicator" *ngIf="selectedStoreId === store.id"></div>
+        </div>
       </div>
-      <span class="table-count">{{ dataSource.data.length }} items</span>
     </div>
 
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+    <!-- Right Panel: Orders -->
+    <div class="orders-panel card">
+      <div class="panel-header">
+        <h2>Orders</h2>
+        <span *ngIf="selectedStoreId !== 'all'" class="selected-store-label">
+          {{ stores.find(s => s.id === selectedStoreId)?.name }}
+        </span>
+        <span *ngIf="selectedStoreId === 'all'" class="selected-store-label">All Branches</span>
+      </div>
 
-        <ng-container matColumnDef="position">
-          <th mat-header-cell *matHeaderCellDef> No. </th>
-          <td mat-cell *matCellDef="let element"> {{ element.position }} </td>
-        </ng-container>
+      <!-- Filters Bar -->
+      <form [formGroup]="filterForm" class="filters-bar">
+        <div class="filter-group">
+          <label for="clientName">Client Name</label>
+          <input type="text" id="clientName" formControlName="clientName" placeholder="Search by name..."
+                 (input)="onClientNameInput()">
+        </div>
+        <div class="filter-group">
+          <label for="orderStatus">Order Status</label>
+          <select id="orderStatus" formControlName="orderStatus">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of orderStatuses" [value]="status.displayName">
+              {{ status.displayName }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="orderType">Order Type</label>
+          <select id="orderType" formControlName="orderType">
+            <option value="">All Types</option>
+            <option *ngFor="let type of orderTypes" [value]="type.value">
+              {{ type.displayName }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group date-range">
+          <label>From Date</label>
+          <input type="date" formControlName="fromDate">
+        </div>
+        <div class="filter-group date-range">
+          <label>To Date</label>
+          <input type="date" formControlName="toDate">
+        </div>
+        <div class="filter-actions">
+          <button type="button" class="btn btn-primary" (click)="applyFilters()">Apply</button>
+          <button type="button" class="btn btn-secondary" (click)="resetFilters()">Reset</button>
+        </div>
+      </form>
 
-        <ng-container matColumnDef="ClientName">
-          <th mat-header-cell *matHeaderCellDef> Client Name </th>
-          <td mat-cell *matCellDef="let element" class="client-name-cell" (click)="viewOrderDetails(element); $event.stopPropagation()">
-            {{ element.ClientName }}
-            <mat-icon class="view-icon">visibility</mat-icon>
-          </td>
-        </ng-container>
+      <!-- Orders Table Container -->
+      <div class="orders-table-container">
+        <!-- Orders Table -->
+        <table class="orders-table" *ngIf="orders.length > 0">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Client</th>
+              <th>Status</th>
+              <th>Order Type</th>
+              <th>Total (EGP)</th>
+              <th>Date</th>
+             </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders" (click)="openOrderDetails(order)" style="cursor: pointer;">
+              <td class="order-id">{{ order.id | slice:0:8 }}...</td>
+              <td class="client-name">{{ order.clientName }}</td>
+              <td><span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ getStatusDisplayName(order.status) }}</span></td>
+              <td><span class="order-type-badge" [ngClass]="getOrderTypeDisplay(order.deliveryFees) === 'InStore' ? 'instore' : 'online'">{{ getOrderTypeDisplay(order.deliveryFees) }}</span></td>
+              <td class="total-amount">{{ order.totalPrice | currency:'EGP':'symbol-narrow' }}</td>
+              <td class="order-date">{{ order.createdAt | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef> Total Price </th>
-          <td mat-cell *matCellDef="let element"> EGP {{ element.price.toFixed(2) }} </td>
-        </ng-container>
+        <!-- Empty state -->
+        <div *ngIf="orders.length === 0" class="empty-state">
+          <p>No orders found for the selected filters.</p>
+        </div>
+      </div>
 
-        <ng-container matColumnDef="Orderstatus">
-          <th mat-header-cell *matHeaderCellDef> Status </th>
-          <td mat-cell *matCellDef="let element">
-            <span class="status-chip" [class]="element.Orderstatus.toLowerCase()">
-              {{ element.Orderstatus }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="BranchName">
-          <th mat-header-cell *matHeaderCellDef> Branch </th>
-          <td mat-cell *matCellDef="let element"> {{ element.BranchName }} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="OrderType">
-          <th mat-header-cell *matHeaderCellDef> Order Type </th>
-          <td mat-cell *matCellDef="let element">
-            <span class="type-badge">{{ element.OrderType }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
-          <td mat-cell *matCellDef="let element"> {{ element.date | date:'dd/MM/yyyy' }} </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="order-row" (click)="viewOrderDetails(row)"></tr>
-
-      </table>
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 0">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">« Previous</button>
+        <div class="page-numbers">
+          <button *ngFor="let page of getPaginationPages()"
+                  class="page-number"
+                  [class.active]="page === currentPage"
+                  [class.dots]="page === '...'"
+                  [disabled]="page === '...'"
+                  (click)="page !== '...' && goToPage(+page)">
+            {{ page }}
+          </button>
+        </div>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next »</button>
+      </div>
+      <div class="pagination-info" *ngIf="totalOrders > 0">
+        Showing {{ (currentPage-1)*pageSize + 1 }} - {{ currentPage*pageSize > totalOrders ? totalOrders : currentPage*pageSize }} of {{ totalOrders }} orders
+      </div>
     </div>
+  </div>
 
-    <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]"
-                   [pageSize]="10"
-                   showFirstLastButtons
-                   aria-label="Select page of orders">
-    </mat-paginator>
+  <!-- Modal for Order Details -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Order Details</h3>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="order-print-content">
+        <div class="order-details-print">
+          <h4>Order #{{ selectedOrder?.id }}</h4>
+          <p><strong>Client:</strong> {{ selectedOrder?.clientName }}</p>
+          <p><strong>Status:</strong> {{ getStatusDisplayName(selectedOrder?.status || 0) }}</p>
+          <p><strong>Order Type:</strong> {{ getOrderTypeDisplay(selectedOrder?.deliveryFees || null) }}</p>
+          <p><strong>Delivery Fee:</strong> {{ selectedOrder?.deliveryFees !== null ? (selectedOrder?.deliveryFees | currency:'EGP':'symbol-narrow') : '-' }}</p>
+          <p><strong>Total Price:</strong> {{ selectedOrder?.totalPrice | currency:'EGP':'symbol-narrow' }}</p>
+          <p><strong>Date:</strong> {{ selectedOrder?.createdAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+          <div *ngIf="selectedOrder?.store">
+            <p><strong>Store:</strong> {{ selectedOrder?.store?.name }} - {{ selectedOrder?.store?.address }}</p>
+          </div>
+          <div *ngIf="selectedOrder?.address">
+            <p><strong>Delivery Address:</strong> {{ selectedOrder?.address?.address }} ({{ selectedOrder?.address?.label }})</p>
+            <p *ngIf="selectedOrder?.address?.additionalInfo">Additional info: {{ selectedOrder?.address?.additionalInfo }}</p>
+          </div>
+          <div *ngIf="selectedOrder?.orderItems?.length">
+            <h5>Items:</h5>
+            <table class="items-table">
+              <thead>
+                <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of selectedOrder?.orderItems">
+                  <td>{{ item.product.nameEn }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.unitPrice | currency:'EGP':'symbol-narrow' }}</td>
+                  <td>{{ item.subTotal | currency:'EGP':'symbol-narrow' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="printOrder()">Print</button>
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
   </div>
 </div>

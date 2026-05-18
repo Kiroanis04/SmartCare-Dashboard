@@ -1,908 +1,409 @@
-import { AfterViewInit, Component, ViewChild, Inject } from '@angular/core';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
-import { CommonModule, DatePipe } from '@angular/common';
+// orders-component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { catchError, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
 
-export interface OrderItem {
-  productName: string;
-  quantity: number;
-  price: number;
-  total: number;
+interface Store {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  phone: string;
 }
 
-export interface Orders {
-  position: number;
-  ClientName: string;
-  price: number;
-  BranchName: string;
-  OrderType: string;
-  Orderstatus: string;
-  date: Date;
-  orderId: string;
-  items: OrderItem[];
-  totalItems: number;
-  paymentMethod: string;
+interface OrderStatusLookup {
+  value: number;
+  displayName: string;
 }
 
-// Order Details Dialog Component
+interface OrderTypeLookup {
+  value: number;
+  displayName: string;
+}
+
+interface OrderItem {
+  id: string;
+  clientName: string;
+  status: number;                // numeric status
+  deliveryFees: number | null;
+  createdAt: string;
+  totalPrice: number;
+  store: Store | null;
+  address: any;                  // address object or null
+  orderItems?: any[];
+}
+
+interface OrdersResponse {
+  succeeded: boolean;
+  message: string | null;
+  errorsBag: any;
+  data: {
+    items: OrderItem[];
+    totalCount: number;
+    pageSize: number;
+    pageNumber: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+}
+
 @Component({
-  selector: 'order-details-dialog',
+  selector: 'app-orders',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule
-  ],
-  template: `
-    <div class="order-dialog-container">
-      <div class="dialog-header">
-        <h2>Order Details</h2>
-        <button mat-icon-button class="close-btn" (click)="dialogRef.close()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <div class="dialog-content">
-        <!-- Order Info -->
-        <div class="info-section">
-          <h3>Order Information</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Order ID:</span>
-              <span class="value">{{ data.orderId }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Client Name:</span>
-              <span class="value">{{ data.ClientName }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Date:</span>
-              <span class="value">{{ data.date | date:'medium' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Branch:</span>
-              <span class="value">{{ data.BranchName }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Order Type:</span>
-              <span class="value">{{ data.OrderType }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Status:</span>
-              <span class="status-badge" [class]="data.Orderstatus.toLowerCase()">
-                {{ data.Orderstatus }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="label">Payment Method:</span>
-              <span class="value">{{ data.paymentMethod }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Total Items:</span>
-              <span class="value">{{ data.totalItems }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order Items -->
-        <div class="items-section">
-          <h3>Order Items</h3>
-          <div class="items-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of data.items; track item.productName) {
-                  <tr>
-                    <td class="product-name">{{ item.productName }}</td>
-                    <td class="quantity">{{ item.quantity }}</td>
-                    <td class="price">EGP {{ item.price.toFixed(2) }}</td>
-                    <td class="total">EGP {{ item.total.toFixed(2) }}</td>
-                  </tr>
-                }
-              </tbody>
-              <tfoot>
-                <tr class="grand-total-row">
-                  <td colspan="3"><strong>Grand Total</strong></td>
-                  <td class="grand-total"><strong>EGP {{ data.price.toFixed(2) }}</strong></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="dialog-footer">
-        <button mat-stroked-button (click)="dialogRef.close()">Close</button>
-        <button mat-flat-button class="print-btn" (click)="printOrder()">
-          <mat-icon>print</mat-icon> Print Order
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .order-dialog-container {
-      max-width: 800px;
-      width: 100%;
-      animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .dialog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 24px;
-      background: linear-gradient(135deg, #1a1a4e 0%, #3b3488 100%);
-      color: white;
-      border-radius: 8px 8px 0 0;
-    }
-
-    .dialog-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .close-btn {
-      color: white;
-    }
-
-    .dialog-content {
-      padding: 24px;
-      max-height: 60vh;
-      overflow-y: auto;
-    }
-
-    .info-section {
-      margin-bottom: 24px;
-    }
-
-    .info-section h3, .items-section h3 {
-      color: #1a1a4e;
-      margin-bottom: 16px;
-      font-size: 1.2rem;
-      border-left: 4px solid #6c63ac;
-      padding-left: 12px;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-    }
-
-    .info-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      background: #f8f9ff;
-      border-radius: 8px;
-      transition: transform 0.2s;
-    }
-
-    .info-item:hover {
-      transform: translateX(4px);
-    }
-
-    .info-item .label {
-      font-weight: 600;
-      color: #666;
-    }
-
-    .info-item .value {
-      color: #1a1a4e;
-      font-weight: 500;
-    }
-
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    .status-badge.delivered {
-      background: #e8f5e9;
-      color: #4caf50;
-    }
-
-    .status-badge.pending {
-      background: #fff3e0;
-      color: #ff9800;
-    }
-
-    .status-badge.shipped {
-      background: #e3f2fd;
-      color: #2196f3;
-    }
-
-    .items-table {
-      overflow-x: auto;
-    }
-
-    .items-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .items-table th,
-    .items-table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .items-table th {
-      background: #f0f2ff;
-      color: #1a1a4e;
-      font-weight: 600;
-    }
-
-    .items-table td.product-name {
-      font-weight: 500;
-      color: #2d2b6b;
-    }
-
-    .items-table td.quantity,
-    .items-table td.price,
-    .items-table td.total {
-      color: #3b3488;
-    }
-
-    .grand-total-row {
-      background: linear-gradient(135deg, #f0f2ff, #f8f9ff);
-    }
-
-    .grand-total {
-      font-size: 1.1rem;
-      color: #6c63ac;
-    }
-
-    .dialog-footer {
-      padding: 16px 24px;
-      border-top: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    .print-btn {
-      background: linear-gradient(135deg, #3b3488, #6c63ac);
-      color: white;
-    }
-
-    .print-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    @media (max-width: 600px) {
-      .info-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .dialog-content {
-        padding: 16px;
-      }
-
-      .items-table th,
-      .items-table td {
-        padding: 8px;
-        font-size: 0.85rem;
-      }
-
-      .dialog-header h2 {
-        font-size: 1.2rem;
-      }
-    }
-  `]
-})
-export class OrderDetailsDialog {
-  constructor(
-    public dialogRef: MatDialogRef<OrderDetailsDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: Orders
-  ) {}
-
-  printOrder() {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Order ${this.data.orderId}</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .info { margin-bottom: 20px; }
-              table { width: 100%; border-collapse: collapse; }
-              th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-              .total { font-weight: bold; margin-top: 20px; text-align: right; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Order Details</h1>
-              <p>Order ID: ${this.data.orderId}</p>
-            </div>
-            <div class="info">
-              <p><strong>Client:</strong> ${this.data.ClientName}</p>
-              <p><strong>Date:</strong> ${new Date(this.data.date).toLocaleString()}</p>
-              <p><strong>Branch:</strong> ${this.data.BranchName}</p>
-              <p><strong>Status:</strong> ${this.data.Orderstatus}</p>
-            </div>
-            <table>
-              <thead>
-                <tr><th>Product</th><th>Quantity</th><th>Price</th><th>Total</th></tr>
-              </thead>
-              <tbody>
-                ${this.data.items.map(item => `
-                  <tr>
-                    <td>${item.productName}</td>
-                    <td>${item.quantity}</td>
-                    <td>EGP ${item.price.toFixed(2)}</td>
-                    <td>EGP ${item.total.toFixed(2)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            <div class="total">
-              <h3>Grand Total: EGP ${this.data.price.toFixed(2)}</h3>
-            </div>
-            <script>
-            window.onafterprint = function() { window.close(); };
-          </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
-  }
-}
-
-// Main Orders Component
-@Component({
-  selector: 'app-orders-component',
-  standalone: true,
-  imports: [
-    CommonModule,
-    DatePipe,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    MatButtonModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatDialogModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './orders-component.html',
   styleUrls: ['./orders-component.css']
 })
-export class OrdersComponent implements AfterViewInit {
-  displayedColumns: string[] = ['position', 'ClientName', 'price', 'Orderstatus', 'BranchName', 'OrderType', 'date'];
-  dataSource = new MatTableDataSource<Orders>([]);
-  allOrders: Orders[] = [];
+export class OrdersComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  private apiBase = 'https://smartcarepharmacy.tryasp.net/api';
 
-  // Filter properties
-  searchClientName = '';
-  selectedOrderType = '';
-  selectedOrderStatus = '';
-  selectedBranchName = '';
-  startDate: Date | null = null;
-  endDate: Date | null = null;
+  stores: Store[] = [];
+  selectedStoreId: string | null = 'all';   // 'all' means all branches
+  orders: OrderItem[] = [];
+  orderStatuses: OrderStatusLookup[] = [];
+  orderTypes: OrderTypeLookup[] = [];
 
-  // Filter options
-  OrderType: string[] = [];
-  OrderStatus: string[] = [];
-  BranchName: string[] = [];
+  loadingStores = false;
+  loadingOrders = false;
+  errorMessage: string | null = null;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  currentPage = 1;
+  pageSize = 12;
+  totalOrders = 0;
+  totalPages = 0;
 
-  constructor(private dialog: MatDialog) {
-    this.loadOrdersData();
-  }
+  filterForm: FormGroup;
+  private clientNameSubject = new Subject<string>();
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+  // Modal
+  selectedOrder: OrderItem | null = null;
+  showModal = false;
 
-  loadOrdersData() {
-    const ordersData: Orders[] = [
-      {
-        position: 1,
-        ClientName: 'Kyrillos anis',
-        price: 156.50,
-        BranchName: 'Mansoura Store',
-        OrderType: 'Online',
-        Orderstatus: 'Delivered',
-        date: new Date(2024, 0, 15),
-        orderId: 'ORD-001',
-        totalItems: 3,
-        paymentMethod: 'Credit Card',
-        items: [
-          { productName: 'Paracetamol 500mg', quantity: 2, price: 12.50, total: 25.00 },
-          { productName: 'Vitamin C 1000mg', quantity: 1, price: 22.00, total: 22.00 },
-          { productName: 'Bandage Roll', quantity: 3, price: 8.00, total: 24.00 }
-        ]
-      },
-      {
-        position: 2,
-        ClientName: 'Kyrillos anis',
-        price: 89.75,
-        BranchName: 'Azbt El-NAKHEL Store',
-        OrderType: 'Pickup',
-        Orderstatus: 'WaitingForPickup',
-        date: new Date(2024, 0, 16),
-        orderId: 'ORD-002',
-        totalItems: 2,
-        paymentMethod: 'Cash',
-        items: [
-          { productName: 'Ibuprofen 400mg', quantity: 1, price: 18.00, total: 18.00 },
-          { productName: 'Antiseptic Cream', quantity: 2, price: 13.00, total: 26.00 }
-        ]
-      },
-      {
-        position: 3,
-        ClientName: 'Kyrillos anis',
-        price: 405.00,
-        BranchName: 'Giza store',
-        OrderType: 'Online',
-        Orderstatus: 'Shipped',
-        date: new Date(2024, 0, 17),
-        orderId: 'ORD-003',
-        totalItems: 2,
-        paymentMethod: 'PayPal',
-        items: [
-          { productName: 'Blood Pressure Monitor', quantity: 1, price: 320.00, total: 320.00 },
-          { productName: 'Digital Thermometer', quantity: 1, price: 85.00, total: 85.00 }
-        ]
-      },
-      {
-        position: 4,
-        ClientName: 'Kyrillos Maher',
-        price: 45.00,
-        BranchName: 'Sohag Store',
-        OrderType: 'Online',
-        Orderstatus: 'Delivered',
-        date: new Date(2024, 0, 18),
-        orderId: 'ORD-004',
-        totalItems: 1,
-        paymentMethod: 'Credit Card',
-        items: [
-          { productName: 'Omega-3 Fish Oil', quantity: 1, price: 45.00, total: 45.00 }
-        ]
-      },
-      {
-        position: 5,
-        ClientName: 'Kyrillos Maher',
-        price: 91.00,
-        BranchName: 'El- Damerdash Branch',
-        OrderType: 'Online',
-        Orderstatus: 'Pending',
-        date: new Date(2024, 0, 19),
-        orderId: 'ORD-005',
-        totalItems: 3,
-        paymentMethod: 'Bank Transfer',
-        items: [
-          { productName: 'Amoxicillin 250mg', quantity: 2, price: 35.75, total: 71.50 },
-          { productName: 'Cough Syrup', quantity: 1, price: 19.50, total: 19.50 }
-        ]
-      },
-      {
-        position: 6,
-        ClientName: 'Kyrillos Maher',
-        price: 59.50,
-        BranchName: 'Hurghada Store',
-        OrderType: 'Online',
-        Orderstatus: 'Shipped',
-        date: new Date(2024, 0, 20),
-        orderId: 'ORD-006',
-        totalItems: 3,
-        paymentMethod: 'Credit Card',
-        items: [
-          { productName: 'Nasal Spray', quantity: 1, price: 24.00, total: 24.00 },
-          { productName: 'Eye Drops', quantity: 2, price: 17.75, total: 35.50 }
-        ]
-      },
-      {
-        position: 7,
-        ClientName: 'Kyrillos Maher',
-        price: 90.00,
-        BranchName: 'El- Damerdash Branch',
-        OrderType: 'Online',
-        Orderstatus: 'Delivered',
-        date: new Date(2024, 0, 21),
-        orderId: 'ORD-007',
-        totalItems: 2,
-        paymentMethod: 'Cash',
-        items: [
-          { productName: 'Zinc Supplement', quantity: 1, price: 30.00, total: 30.00 },
-          { productName: 'Probiotic Capsules', quantity: 1, price: 60.00, total: 60.00 }
-        ]
-      },
-      {
-        position: 8,
-        ClientName: 'MarkAyman',
-        price: 171.00,
-        BranchName: 'Mansoura Store',
-        OrderType: 'Online',
-        Orderstatus: 'Pending',
-        date: new Date(2024, 0, 22),
-        orderId: 'ORD-008',
-        totalItems: 12,
-        paymentMethod: 'PayPal',
-        items: [
-          { productName: 'Melatonin 5mg', quantity: 2, price: 38.00, total: 76.00 },
-          { productName: 'Insulin Syringe', quantity: 10, price: 9.50, total: 95.00 }
-        ]
-      },
-      {
-        position: 9,
-        ClientName: 'Kyrillos Maher',
-        price: 55.00,
-        BranchName: 'Sohag Store',
-        OrderType: 'Pickup',
-        Orderstatus: 'Completed',
-        date: new Date(2024, 0, 23),
-        orderId: 'ORD-009',
-        totalItems: 1,
-        paymentMethod: 'Credit Card',
-        items: [
-          { productName: 'Glucose Test Strips', quantity: 1, price: 55.00, total: 55.00 }
-        ]
-      },
-      {
-        position: 10,
-        ClientName: 'MarkAyman',
-        price: 98.00,
-        BranchName: 'Azbt El-NAKHEL Store',
-        OrderType: 'Online',
-        Orderstatus: 'Shipped',
-        date: new Date(2024, 0, 24),
-        orderId: 'ORD-010',
-        totalItems: 3,
-        paymentMethod: 'Bank Transfer',
-        items: [
-          { productName: 'Surgical Mask x50', quantity: 2, price: 28.00, total: 56.00 },
-          { productName: 'Nitrile Gloves', quantity: 1, price: 42.00, total: 42.00 }
-        ]
-      },
-      {
-        position: 11,
-        ClientName: 'StevenAyad',
-        price: 120.00,
-        BranchName: 'Down Town Cairo Store',
-        OrderType: 'Online',
-        Orderstatus: 'Delivered',
-        date: new Date(2024, 0, 25),
-        orderId: 'ORD-011',
-        totalItems: 4,
-        paymentMethod: 'Credit Card',
-        items: [
-          { productName: 'Vitamin B12 Supplement', quantity: 2, price: 35.00, total: 70.00 },
-          { productName: 'Calcium Tablets', quantity: 1, price: 50.00, total: 50.00 }
-        ]
-      },
-      {
-        position: 12,
-        ClientName: 'Kyrillos anis',
-        price: 200.00,
-        BranchName: 'Hurghada Store',
-        OrderType: 'Pickup',
-        Orderstatus: 'Pending',
-        date: new Date(2024, 0, 26),
-        orderId: 'ORD-012',
-        totalItems: 5,
-        paymentMethod: 'Cash',
-        items: [
-          { productName: 'First Aid Kit', quantity: 1, price: 200.00, total: 200.00 }
-        ]
-      },
-      {
-    position: 13,
-    ClientName: 'Kyrillos anis',
-    price: 310.00,
-    BranchName: 'Nasr City Store',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 0, 27),
-    orderId: 'ORD-013',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Nebulizer Machine', quantity: 1, price: 280.00, total: 280.00 },
-      { productName: 'Saline Solution', quantity: 2, price: 15.00, total: 30.00 }
-    ]
-  },
-  {
-    position: 14,
-    ClientName: 'MarkAyman',
-    price: 65.50,
-    BranchName: 'Tanta Store',
-    OrderType: 'Pickup',
-    Orderstatus: 'Cancelled',
-    date: new Date(2024, 0, 28),
-    orderId: 'ORD-014',
-    totalItems: 2,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Hand Sanitizer 500ml', quantity: 1, price: 45.00, total: 45.00 },
-      { productName: 'Face Mask Single', quantity: 5, price: 4.10, total: 20.50 }
-    ]
-  },
-  {
-    position: 15,
-    ClientName: 'StevenAyad',
-    price: 1200.00,
-    BranchName: 'Maadi Store',
-    OrderType: 'Online',
-    Orderstatus: 'Shipped',
-    date: new Date(2024, 0, 29),
-    orderId: 'ORD-015',
-    totalItems: 1,
-    paymentMethod: 'Bank Transfer',
-    items: [
-      { productName: 'Electric Wheelchair Battery', quantity: 1, price: 1200.00, total: 1200.00 }
-    ]
-  },
-  {
-    position: 16,
-    ClientName: 'StevenAyad',
-    price: 240.00,
-    BranchName: 'Alex Store Med Center',
-    OrderType: 'Online',
-    Orderstatus: 'Pending',
-    date: new Date(2024, 0, 30),
-    orderId: 'ORD-016',
-    totalItems: 3,
-    paymentMethod: 'PayPal',
-    items: [
-      { productName: 'Collagen Powder', quantity: 1, price: 180.00, total: 180.00 },
-      { productName: 'Vitamin D3', quantity: 2, price: 30.00, total: 60.00 }
-    ]
-  },
-  {
-    position: 17,
-    ClientName: 'Kyrillos anis',
-    price: 55.00,
-    BranchName: 'Aswan Health Point',
-    OrderType: 'Pickup',
-    Orderstatus: 'WaitingForPickup',
-    date: new Date(2024, 1, 1),
-    orderId: 'ORD-017',
-    totalItems: 1,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Sunblock Cream SPF50', quantity: 1, price: 55.00, total: 55.00 }
-    ]
-  },
-  {
-    position: 18,
-    ClientName: 'Kyrillos anis',
-    price: 430.00,
-    BranchName: 'Giza Store',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 1, 2),
-    orderId: 'ORD-018',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Skin Serum Set', quantity: 1, price: 350.00, total: 350.00 },
-      { productName: 'Moisturizer', quantity: 1, price: 80.00, total: 80.00 }
-    ]
-  },
-  {
-    position: 19,
-    ClientName: 'Kyrillos anis',
-    price: 110.00,
-    BranchName: 'Sohag Store',
-    OrderType: 'Online',
-    Orderstatus: 'Returned',
-    date: new Date(2024, 1, 3),
-    orderId: 'ORD-019',
-    totalItems: 2,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Back Support Belt', quantity: 1, price: 110.00, total: 110.00 }
-    ]
-  },
-  {
-    position: 20,
-    ClientName: 'Kyrillos anis',
-    price: 85.00,
-    BranchName: 'El- Damerdash Branch',
-    OrderType: 'Online',
-    Orderstatus: 'Shipped',
-    date: new Date(2024, 1, 4),
-    orderId: 'ORD-020',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Iron Supplements', quantity: 2, price: 42.50, total: 85.00 }
-    ]
-  },
-  {
-    position: 21,
-    ClientName: 'Mark Ayman',
-    price: 670.00,
-    BranchName: 'Down Town Cairo Store',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 1, 5),
-    orderId: 'ORD-021',
-    totalItems: 1,
-    paymentMethod: 'Bank Transfer',
-    items: [
-      { productName: 'Orthopedic Mattress Pad', quantity: 1, price: 670.00, total: 670.00 }
-    ]
-  },
-  {
-    position: 22,
-    ClientName: 'StevenAyad',
-    price: 45.00,
-    BranchName: 'Mansoura Store',
-    OrderType: 'Pickup',
-    Orderstatus: 'WaitingForPickup',
-    date: new Date(2024, 1, 6),
-    orderId: 'ORD-022',
-    totalItems: 3,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Antacid Tablets', quantity: 3, price: 15.00, total: 45.00 }
-    ]
-  },
-  {
-    position: 23,
-    ClientName: 'Mark Ayman',
-    price: 195.00,
-    BranchName: 'Hurghada Store',
-    OrderType: 'Online',
-    Orderstatus: 'Processing',
-    date: new Date(2024, 1, 7),
-    orderId: 'ORD-023',
-    totalItems: 2,
-    paymentMethod: 'PayPal',
-    items: [
-      { productName: 'Digital Pulse Oximeter', quantity: 1, price: 195.00, total: 195.00 }
-    ]
-  },
-  {
-    position: 24,
-    ClientName: 'StevenAyad',
-    price: 32.00,
-    BranchName: 'Azbt El-NAKHEL Store',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 1, 8),
-    orderId: 'ORD-024',
-    totalItems: 4,
-    paymentMethod: 'Cash',
-    items: [
-      { productName: 'Aspirin', quantity: 4, price: 8.00, total: 32.00 }
-    ]
-  },
-  {
-    position: 25,
-    ClientName: 'Mark Ayman',
-    price: 150.00,
-    BranchName: 'Nasr City Store',
-    OrderType: 'Online',
-    Orderstatus: 'Shipped',
-    date: new Date(2024, 1, 9),
-    orderId: 'ORD-025',
-    totalItems: 1,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Hearing Aid Batteries', quantity: 5, price: 30.00, total: 150.00 }
-    ]
-  },
-  {
-    position: 26,
-    ClientName: 'Mark Ayman',
-    price: 520.00,
-    BranchName: 'Maadi Store',
-    OrderType: 'Online',
-    Orderstatus: 'Delivered',
-    date: new Date(2024, 1, 10),
-    orderId: 'ORD-026',
-    totalItems: 2,
-    paymentMethod: 'Credit Card',
-    items: [
-      { productName: 'Electric Toothbrush', quantity: 1, price: 450.00, total: 450.00 },
-      { productName: 'Replacement Heads', quantity: 1, price: 70.00, total: 70.00 }
-    ]
-  },
-    ];
-
-     this.allOrders = ordersData;
-     this.dataSource.data = this.allOrders.map((p, i) => ({ ...p, position: i + 1 }));
-
-    // Extract filter options
-    this.OrderType = [...new Set(ordersData.map(p => p.OrderType))];
-    this.OrderStatus = [...new Set(ordersData.map(p => p.Orderstatus))];
-    this.BranchName = [...new Set(ordersData.map(p => p.BranchName))];
-  }
-
-  applyFilters() {
-    const filtered = this.allOrders.filter(p => {
-      const matchSearch = !this.searchClientName ||
-        p.ClientName.toLowerCase().includes(this.searchClientName.toLowerCase());
-      const matchOrderType = !this.selectedOrderType || p.OrderType === this.selectedOrderType;
-      const matchOrderStatus = !this.selectedOrderStatus || p.Orderstatus === this.selectedOrderStatus;
-      const matchBranchName = !this.selectedBranchName || p.BranchName === this.selectedBranchName;
-
-      // Date range filter
-      let matchDate = true;
-      if (this.startDate && p.date) {
-        matchDate = matchDate && p.date >= this.startDate;
-      }
-      if (this.endDate && p.date) {
-        const endOfDay = new Date(this.endDate);
-        endOfDay.setHours(23, 59, 59);
-        matchDate = matchDate && p.date <= endOfDay;
-      }
-
-      return matchSearch && matchOrderType && matchOrderStatus && matchBranchName && matchDate;
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder
+  ) {
+    this.filterForm = this.fb.group({
+      clientName: [''],
+      orderStatus: [''],
+      orderType: [''],
+      fromDate: [this.getDefaultFromDate()],
+      toDate: [this.getDefaultToDate()]
     });
-
-    this.dataSource.data = filtered.map((p, i) => ({ ...p, position: i + 1 }));
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
-  resetFilters() {
-    this.searchClientName = '';
-    this.selectedBranchName = '';
-    this.selectedOrderStatus = '';
-    this.selectedOrderType = '';
-    this.startDate = null;
-    this.endDate = null;
-    //this.loadOrdersData();
-    this.dataSource.data = this.allOrders.map((p, i) => ({ ...p, position: i + 1 }));
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+  ngOnInit(): void {
+    this.loadInitialData();
+    this.setupClientNameDebounce();
+    this.setupFilterAutoReload();
   }
 
-  viewOrderDetails(order: Orders) {
-    this.dialog.open(OrderDetailsDialog, {
-      data: order,
-      width: '90%',
-      maxWidth: '800px',
-      panelClass: 'order-dialog-panel'
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadInitialData(): void {
+    this.loadStores();
+    this.loadOrderStatuses();
+    this.loadOrderTypes();
+  }
+
+  private loadStores(): void {
+    this.loadingStores = true;
+    this.errorMessage = null;
+    this.http.get<{ succeeded: boolean; data: Store[] }>(`${this.apiBase}/stores`)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loadingStores = false),
+        catchError(err => {
+          this.errorMessage = 'Failed to load stores. Please try again.';
+          console.error(err);
+          return of({ succeeded: false, data: [] });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.succeeded && response.data) {
+            this.stores = response.data;
+            // If we have stores and no store selected, default to 'all'
+            if (this.stores.length > 0 && this.selectedStoreId === null) {
+              this.selectedStoreId = 'all';
+              this.loadOrders();
+            }
+          } else {
+            this.errorMessage = 'No stores data received.';
+          }
+        },
+        error: () => {
+          this.errorMessage = 'Error loading stores.';
+        }
+      });
+  }
+
+  private loadOrderStatuses(): void {
+    this.http.get<OrderStatusLookup[]>(`${this.apiBase}/lookups/order-statues`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => this.orderStatuses = data || [],
+        error: (err) => console.error('Failed to load order statues', err)
+      });
+  }
+
+  private loadOrderTypes(): void {
+    this.http.get<OrderTypeLookup[]>(`${this.apiBase}/lookups/order-Types`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => this.orderTypes = data || [],
+        error: (err) => console.error('Failed to load order types', err)
+      });
+  }
+
+  // Get status display name from numeric value
+  getStatusDisplayName(statusValue: number): string {
+    const found = this.orderStatuses.find(s => s.value === statusValue);
+    return found ? found.displayName : 'Unknown';
+  }
+
+  loadOrders(): void {
+    this.loadingOrders = true;
+    this.errorMessage = null;
+
+    const params = this.buildRequestParams();
+
+    this.http.get<OrdersResponse>(`${this.apiBase}/admin/orders/with-details`, { params })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loadingOrders = false),
+        catchError(err => {
+          this.errorMessage = 'Failed to load orders. Please check filters and try again.';
+          console.error(err);
+          const fallback: OrdersResponse = {
+            succeeded: false,
+            message: 'Network or server error',
+            errorsBag: null,
+            data: {
+              items: [],
+              totalCount: 0,
+              pageSize: this.pageSize,
+              pageNumber: 1,
+              totalPages: 0,
+              hasNext: false,
+              hasPrevious: false
+            }
+          };
+          return of(fallback);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.succeeded && response.data) {
+            this.orders = response.data.items || [];
+            this.totalOrders = response.data.totalCount;
+            this.currentPage = response.data.pageNumber || 1;
+            this.totalPages = response.data.totalPages || 0;
+          } else {
+            this.orders = [];
+            this.totalOrders = 0;
+            this.totalPages = 0;
+            if (response.message) this.errorMessage = response.message;
+          }
+        }
+      });
+  }
+
+  private buildRequestParams(): any {
+    const params: any = {
+      PageSize: this.pageSize,
+      PageNumber: this.currentPage,
+    };
+
+    // Only add BranchId if a specific store is selected (not 'all')
+    if (this.selectedStoreId && this.selectedStoreId !== 'all') {
+      params.BranchId = this.selectedStoreId;
+    }
+
+    const clientName = this.filterForm.get('clientName')?.value?.trim();
+    if (clientName) params.ClientName = clientName;
+
+    const orderStatus = this.filterForm.get('orderStatus')?.value;
+    if (orderStatus) params.OrderStatus = orderStatus;
+
+    const orderType = this.filterForm.get('orderType')?.value;
+    if (orderType !== undefined && orderType !== null && orderType !== '') {
+      params.OrderType = orderType;
+    }
+
+    const fromDate = this.filterForm.get('fromDate')?.value;
+    const toDate = this.filterForm.get('toDate')?.value;
+    if (fromDate) params.FromDate = fromDate;
+    if (toDate) params.ToDate = toDate;
+
+    return params;
+  }
+
+  onStoreChange(storeId: string): void {
+    this.selectedStoreId = storeId;
+    this.resetPagination();
+    this.loadOrders();
+  }
+
+  applyFilters(): void {
+    this.resetPagination();
+    this.loadOrders();
+  }
+
+  resetFilters(): void {
+    this.filterForm.patchValue({
+      clientName: '',
+      orderStatus: '',
+      orderType: '',
+      fromDate: this.getDefaultFromDate(),
+      toDate: this.getDefaultToDate()
     });
+    this.resetPagination();
+    this.loadOrders();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
+    this.currentPage = page;
+    this.loadOrders();
+  }
+
+  private resetPagination(): void {
+    this.currentPage = 1;
+  }
+
+  private getDefaultFromDate(): string {
+    const date = new Date();
+    date.setDate(1);
+    return this.formatDate(date);
+  }
+
+  private getDefaultToDate(): string {
+    return this.formatDate(new Date());
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getOrderTypeDisplay(deliveryFees: number | null): string {
+    // deliveryFees === 0 => InStore, else (null or any other) => Online
+    return deliveryFees === 0 ? 'InStore' : 'Online';
+  }
+
+  // For status badge CSS class, map display name to class
+  getStatusClass(statusValue: number): string {
+    const displayName = this.getStatusDisplayName(statusValue);
+    const mapping: { [key: string]: string } = {
+      'Pending': 'pending',
+      'Processing': 'processing',
+      'Shipped': 'shipped',
+      'Completed': 'completed',
+      'Cancelled': 'cancelled',
+      'Confirmed': 'confirmed',
+      'Returned': 'returned',
+      'PaymentFailed': 'payment-failed',
+      'Expired': 'expired',
+      'Refunded': 'refunded',
+      'WaitingForPickup': 'waiting-pickup',
+      'Ready_To_Ship': 'ready-to-ship',
+      'DELIVERY_ACCEPTED': 'delivery-accepted'
+    };
+    return mapping[displayName] || 'default-status';
+  }
+
+  getPaginationPages(): (number | string)[] {
+    const delta = 2;
+    const range: (number | string)[] = [];
+    const left = this.currentPage - delta;
+    const right = this.currentPage + delta;
+    for (let i = 1; i <= this.totalPages; i++) {
+      if (i === 1 || i === this.totalPages || (i >= left && i <= right)) {
+        range.push(i);
+      } else if (range[range.length - 1] !== '...') {
+        range.push('...');
+      }
+    }
+    return range;
+  }
+
+  private setupClientNameDebounce(): void {
+    this.clientNameSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.resetPagination();
+      this.loadOrders();
+    });
+  }
+
+  onClientNameInput(): void {
+    this.clientNameSubject.next(this.filterForm.get('clientName')?.value);
+  }
+
+  private setupFilterAutoReload(): void {
+    this.filterForm.get('orderStatus')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.resetPagination();
+        this.loadOrders();
+      });
+
+    this.filterForm.get('orderType')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.resetPagination();
+        this.loadOrders();
+      });
+
+    this.filterForm.get('fromDate')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.resetPagination();
+        this.loadOrders();
+      });
+
+    this.filterForm.get('toDate')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.resetPagination();
+        this.loadOrders();
+      });
+  }
+
+  // Modal methods
+  openOrderDetails(order: OrderItem): void {
+    this.selectedOrder = order;
+    this.showModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedOrder = null;
+    document.body.style.overflow = '';
+  }
+
+  printOrder(): void {
+    const printContent = document.getElementById('order-print-content');
+    if (!printContent) return;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContent.innerHTML;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload(); // to restore event listeners
   }
 }
